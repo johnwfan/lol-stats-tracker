@@ -45,6 +45,27 @@ function kda(k, d, a) {
   return ((k + a) / denom).toFixed(2);
 }
 
+function rankedQueueName(queueType) {
+  const map = {
+    RANKED_SOLO_5x5: "Ranked Solo/Duo",
+    RANKED_FLEX_SR: "Ranked Flex",
+    RANKED_FLEX_TT: "Ranked Flex (TT)", // legacy, rarely seen
+  };
+  return map[queueType] || queueType || "Ranked";
+}
+
+function formatTierRank(entry) {
+  if (!entry?.tier || !entry?.rank) return "Unranked";
+  return `${entry.tier} ${entry.rank}`; // e.g. "GOLD II"
+}
+
+function winrate(wins, losses) {
+  const total = (wins || 0) + (losses || 0);
+  if (total === 0) return "—";
+  return `${Math.round((wins / total) * 100)}%`;
+}
+
+
 function cx(...classes) {
   return classes.filter(Boolean).join(" ");
 }
@@ -182,6 +203,7 @@ export default function Home() {
           if (!info || !me) return null;
 
           return {
+            platform,
             matchId: match?.metadata?.matchId,
             queueId: info.queueId,
             gameVersion: info.gameVersion,          // <-- add this
@@ -325,25 +347,76 @@ export default function Home() {
 
         {/* Ranked */}
         {ranked && (
-          <Card className="p-4 md:p-5">
-            <div className="flex items-center justify-between">
-              <div className="text-lg font-semibold">Ranked</div>
-              <div className="text-xs text-white/50">League-V4</div>
-            </div>
+  <Card className="p-4 md:p-5">
+    <div className="flex items-center justify-between">
+      <div className="text-lg font-semibold">Ranked</div>
+      <div className="text-xs text-white/50">League-V4</div>
+    </div>
 
-            {ranked.rankedStatus === "UNRANKED" ? (
-              <div className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-white/70">
-                Unranked — play a ranked Solo/Duo or Flex match to populate this.
+    {ranked.rankedStatus === "UNRANKED" || !ranked.entries || ranked.entries.length === 0 ? (
+      <div className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-white/70">
+        Unranked — play a ranked Solo/Duo or Flex match to populate this.
+      </div>
+    ) : (
+      <div className="mt-4 grid gap-3 md:grid-cols-2">
+        {ranked.entries
+          .slice()
+          .sort((a, b) => (a.queueType || "").localeCompare(b.queueType || ""))
+          .map((e) => {
+            const isSolo = e.queueType === "RANKED_SOLO_5x5";
+            const accent = isSolo ? "border-amber-400/30" : "border-white/10";
+            const pillBg = isSolo ? "bg-amber-400/10 text-amber-200 border-amber-400/20" : "bg-white/5 text-white/80 border-white/10";
+
+            return (
+              <div
+                key={e.queueType}
+                className={cx(
+                  "rounded-2xl border bg-black/20 p-4",
+                  "transition hover:bg-black/30 hover:shadow-lg hover:shadow-black/40",
+                  accent
+                )}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-sm text-white/60">{rankedQueueName(e.queueType)}</div>
+                    <div className="mt-1 text-xl font-semibold tracking-tight">
+                      {formatTierRank(e)}
+                      <span className="ml-2 text-sm font-medium text-white/60">
+                        {e.leaguePoints ?? 0} LP
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className={cx("shrink-0 rounded-full border px-3 py-1 text-xs font-semibold", pillBg)}>
+                    {e.hotStreak ? "Hot Streak" : e.veteran ? "Veteran" : e.freshBlood ? "Fresh Blood" : "Ranked"}
+                  </div>
+                </div>
+
+                <div className="mt-3 grid grid-cols-3 gap-2">
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                    <div className="text-xs text-white/50">Wins</div>
+                    <div className="mt-1 text-base font-semibold">{e.wins ?? 0}</div>
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                    <div className="text-xs text-white/50">Losses</div>
+                    <div className="mt-1 text-base font-semibold">{e.losses ?? 0}</div>
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                    <div className="text-xs text-white/50">Winrate</div>
+                    <div className="mt-1 text-base font-semibold">{winrate(e.wins, e.losses)}</div>
+                  </div>
+                </div>
               </div>
-            ) : (
-              <pre className="mt-3 text-xs text-white/80 overflow-auto rounded-xl border border-white/10 bg-black/30 p-3">
-                {JSON.stringify(ranked.entries, null, 2)}
-              </pre>
-            )}
-          </Card>
-        )}
+            );
+          })}
+      </div>
+    )}
+  </Card>
+)}
+
 
         {/* Matches */}
+        
         {matches.length > 0 && (
           <Card className="p-4 md:p-5">
             <div className="flex items-center justify-between">
@@ -362,17 +435,17 @@ export default function Home() {
                 const icon = championIconUrl(m.championName);
 
                 return (
-                  <div
+                  <a
                     key={m.matchId}
+                    href={`/match/${m.platform}/${m.matchId}`}
                     className={cx(
-                      "rounded-2xl border border-white/10 bg-black/20 p-3",
+                      "block rounded-2xl border border-white/10 bg-black/20 p-3",
                       "border-l-4", stripe,
                       "transition hover:bg-black/30",
-                      "shadow-sm hover:shadow-lg",                 // <-- add this
-                      m.win ? "hover:shadow-emerald-500/10" : "hover:shadow-rose-500/10" // <-- add this
+                      "shadow-sm hover:shadow-lg",
+                      m.win ? "hover:shadow-emerald-500/10" : "hover:shadow-rose-500/10"
                     )}
                   >
-
                     <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 ">
                       {/* Left: Champion + queue */}
                       <div className="min-w-0 flex items-center gap-3">
@@ -417,7 +490,7 @@ export default function Home() {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </a>
                 );
               })}
 
