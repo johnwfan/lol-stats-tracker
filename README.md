@@ -1,105 +1,93 @@
-League of Legends Stats Tracker
+# League of Legends Stats Tracker
 
-A full-stack web app that pulls League of Legends player + match data and turns it into clean, readable stats dashboards (match history, performance trends, and quick comparisons). Built to be fast to use, easy to extend, and actually deployable.
+A full-stack web app that pulls **League of Legends player + match data** and turns it into a clean stats dashboard (match history, performance trends, and quick comparisons). Built to be fast to use, easy to extend, and deployable.
 
-Demo
+---
 
-Live: [(add link)](https://lol-stats-tracker-johnf.vercel.app/)
+## Demo
+
+- Live: [https://lol-stats-tracker-johnf.vercel.app/](https://lol-stats-tracker-johnf.vercel.app/)
+- Screenshots:
+<img width="959" height="911" alt="Screenshot 2025-12-27 034816" src="https://github.com/user-attachments/assets/c0aea3b0-24f0-4b5f-9a4c-3c01e0d7721d" />
+<img width="1009" height="913" alt="Screenshot 2025-12-27 034904" src="https://github.com/user-attachments/assets/2c00e6d2-3b13-475f-90a6-b06244f34066" />
 
 
-Screenshots:
-<img width="959" height="911" alt="Screenshot 2025-12-27 034816" src="https://github.com/user-attachments/assets/46a280c2-f7e3-4db0-97f4-1db854777390" />
-<img width="1009" height="913" alt="Screenshot 2025-12-27 034904" src="https://github.com/user-attachments/assets/0c4c4e41-c63c-4c22-b9fc-54a82501948d" />
+---
 
+## Features
 
+### Summoner Search
+- Search any summoner by **name + region**
+- View profile info (level, icon, ranked info, etc.)
 
-Features
-Summoner Search
+### Match History + Detailed Stats
+- Recent match list (champion, role, KDA, duration, result)
+- Match details: items, runes, CS/min, vision, damage *(if implemented)*
+- Filters by queue / role / champion *(if implemented)*
 
-Search any summoner by name + region
+### Performance Insights
+- Rolling averages (KDA, KP%, CS/min, vision score) *(if implemented)*
+- Most played champions + winrates
+- Trend view across last **N** games *(if implemented)*
 
-View profile info (icon, level, ranked details, etc.)
+### Comparison Mode *(optional)*
+- Compare two players side-by-side (rank, champ pool, winrate, recent form)
 
-Match History + Deep Stats
+---
 
-Recent match list with core metadata (champion, role, KDA, duration, result)
+## Tech Stack
 
-Match details: items, runes, CS/min, vision, damage charts (if you implemented these)
+**Frontend**
+- React / Next.js (JavaScript)
+- UI: *(Tailwind / CSS / MUI / Chakra — fill in)*
+- Data fetching: *(fetch / axios — fill in)*
 
-Filters (queue type, role, champion) (if applicable)
+**Backend**
+- Node.js + Express *(or your backend framework)*
+- Riot Games API integration
+- Rate limiting + caching *(if implemented)*
 
-Performance Insights
+**Database (optional)**
+- MongoDB / Postgres / SQLite *(if used)*
+- Stores match snapshots + user lookups to reduce API calls
 
-Rolling averages (KDA, KP%, CS/min, vision score) (if applicable)
+**Deployment**
+- Frontend: Vercel / Netlify
+- Backend: Render / Railway / Fly.io
+- Environment variables for Riot API key
 
-“Most played champs” and winrates
+---
 
-Trend view across last N games
+## How It Works (High Level)
 
-Comparison Mode (optional)
+1. User searches a summoner.
+2. Backend fetches **PUUID + account details** from the Riot API.
+3. Backend pulls recent match IDs, then fetches match details for each match.
+4. App aggregates raw match data into human-readable stats.
+5. *(Optional)* Cache/DB stores results to reduce repeated API calls and handle rate limits.
 
-Compare two players side-by-side: champ pool, rank, winrate, recent form
+---
 
-Tech Stack
+## Getting Started (Local Setup)
 
-Frontend
+### 1) Clone
 
-React (or Next.js) + JavaScript
-
-UI: (Tailwind / CSS / MUI / Chakra — whatever you used)
-
-Data fetching: (fetch/axios)
-
-Backend
-
-Node.js + Express (or FastAPI / whatever you used)
-
-Riot Games API integration
-
-Rate limiting + caching (if you added this)
-
-Database (optional)
-
-MongoDB / Postgres / SQLite (if used)
-
-Stores match snapshots + user lookups to reduce API calls
-
-Deployment
-
-Frontend: Vercel / Netlify
-
-Backend: Render / Railway / Fly.io
-
-Env vars for Riot API Key
-
-How It Works (High Level)
-
-User searches a summoner.
-
-Backend fetches PUUID + account details from Riot API.
-
-Backend pulls recent match IDs, then match details for each match.
-
-App aggregates raw match data into human-readable stats.
-
-(Optional) Cache / DB stores results to reduce repeated API calls + handle rate limits.
-
-Getting Started (Local Setup)
-1) Clone
+```bash
 git clone https://github.com/<your-username>/<repo>.git
 cd <repo>
+```
 
-2) Add environment variables
+### 2) Add environment variables
 
-Create a .env file in the backend folder (or root, depending on your structure):
+Create a .env file in your backend folder (or root, depending on your structure):
 
 RIOT_API_KEY=your_riot_api_key_here
 PORT=5000
 
 
-(If you have regions, database URLs, etc., add them here too.)
+(Add any other vars you use, like CLIENT_URL, MONGO_URI, etc.)
 
-3) Install + run
+### 3) Install + run
 Backend
 cd server
 npm install
@@ -111,19 +99,9 @@ npm install
 npm run dev
 
 
-Open: http://localhost:3000
+Open http://localhost:3000
 
-API Notes (Riot)
-
-This project uses the Riot Games Developer API.
-
-You’ll need an API key from the Riot Developer Portal.
-
-Keys can expire (dev keys rotate), so if requests fail, regenerate the key.
-
-Rate limits are real — caching helps a lot.
-
-Project Structure (example)
+## Project Structure (Example)
 .
 ├── client/                 # frontend
 │   ├── src/
@@ -135,14 +113,12 @@ Project Structure (example)
 │   └── ...
 └── README.md
 
-What I’d Improve Next
+Riot API Notes
 
-Smarter caching (Redis) + background refresh
+This project uses the Riot Games Developer API.
 
-Better visualizations (damage share, gold diff over time)
+You need an API key from the Riot Developer Portal.
 
-Champion matchup insights + draft tools
+Dev keys can expire/rotate — if requests fail, regenerate your key.
 
-Auth + saved profiles / “watchlist”
-
-Automated tests + CI
+Rate limits are strict; caching helps a lot.
