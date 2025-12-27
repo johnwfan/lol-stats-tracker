@@ -20,6 +20,7 @@ export async function GET(req) {
 
         const sum = await getSummonerByPuuid(platform, acct.puuid);
 
+        
         const doc = await Summoner.findOneAndUpdate(
             { platform, puuid: acct.puuid },
             {
@@ -34,7 +35,7 @@ export async function GET(req) {
             },
             { upsert: true, new: true}
         );
-        
+
         return Response.json({
             platform,
             regional: regionalFromPlatform(platform),
