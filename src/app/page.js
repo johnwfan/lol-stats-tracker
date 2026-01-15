@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import AuthButton from "@/components/AuthButton";
+import RecentSearches from "@/components/RecentSearches";
 
 const REGIONS = [
   { label: "NA", value: "na1" },
@@ -15,7 +17,6 @@ const REGIONS = [
   { label: "TR", value: "tr1" },
   { label: "RU", value: "ru" },
 ];
-
 
 function queueName(queueId) {
   const map = {
@@ -38,7 +39,6 @@ function queueName(queueId) {
   };
   return map[queueId] || `Queue ${queueId}`;
 }
-
 
 function kda(k, d, a) {
   const denom = d === 0 ? 1 : d;
@@ -65,7 +65,6 @@ function winrate(wins, losses) {
   return `${Math.round((wins / total) * 100)}%`;
 }
 
-
 function cx(...classes) {
   return classes.filter(Boolean).join(" ");
 }
@@ -87,10 +86,8 @@ function Card({ children, className }) {
 
 function ddragonVersionFromGameVersion(gameVersion) {
   if (!gameVersion) return null;
-  // Expect something like "15.24.1" or "15.24.1.123"
   const parts = String(gameVersion).split(".");
   if (parts.length < 2) return null;
-  // Use first 3 if present; otherwise first 2 + ".1"
   if (parts.length >= 3) return `${parts[0]}.${parts[1]}.${parts[2]}`;
   return `${parts[0]}.${parts[1]}.1`;
 }
@@ -111,7 +108,6 @@ function championToDdragonImageName(championName) {
 function championIconUrl(championName) {
   const champ = championToDdragonImageName(championName);
   if (!champ) return null;
-  // No version needed ✅
   return `https://ddragon.leagueoflegends.com/cdn/img/champion/tiles/${champ}_0.jpg`;
 }
 
@@ -132,6 +128,10 @@ export default function Home() {
 
   const [ddVersion, setDdVersion] = useState(null);
 
+  // --- recent searches dropdown state ---
+  const [recentOpen, setRecentOpen] = useState(false);
+  const recentWrapRef = useRef(null);
+
   useEffect(() => {
     fetch("https://ddragon.leagueoflegends.com/api/versions.json")
       .then((r) => r.json())
@@ -140,6 +140,17 @@ export default function Home() {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, []);
 
+  // close recent overlay on outside click
+  useEffect(() => {
+    function onMouseDown(e) {
+      if (!recentWrapRef.current) return;
+      if (!recentWrapRef.current.contains(e.target)) {
+        setRecentOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", onMouseDown);
+    return () => document.removeEventListener("mousedown", onMouseDown);
+  }, []);
 
   async function handleSearch(e) {
     e.preventDefault();
@@ -159,6 +170,20 @@ export default function Home() {
       const pData = await pRes.json();
       if (!pRes.ok) throw new Error(pData.error || "Profile fetch failed");
       setProfile(pData);
+
+      // save recent search (non-blocking)
+      fetch("/api/recent-searches", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          platform,
+          name: name.trim(),
+          tag: tag.trim(),
+        }),
+      }).catch(() => {});
+
+      // close dropdown after a successful search
+      setRecentOpen(false);
 
       // 2) Ranked (PUUID-based)
       const rRes = await fetch(
@@ -206,7 +231,7 @@ export default function Home() {
             platform,
             matchId: match?.metadata?.matchId,
             queueId: info.queueId,
-            gameVersion: info.gameVersion,          // <-- add this
+            gameVersion: info.gameVersion,
             championName: me.championName,
             teamPosition: me.teamPosition || "—",
             kills: me.kills,
@@ -229,86 +254,119 @@ export default function Home() {
     <main>
       {/* Header */}
       <header className="sticky top-0 z-10 border-b border-white/10 bg-black/20 backdrop-blur">
-        <div className="mx-auto max-w-4xl px-4 py-4">
+        <div className="mx-auto max-w-4xl px-4 py-4 relative">
           <h1 className="text-center text-2xl md:text-3xl font-semibold tracking-tight">
             <span className="text-white">LoL</span>{" "}
             <span className="text-amber-400">Stats Tracker</span>
           </h1>
+
+          <div className="absolute right-4 top-1/2 -translate-y-1/2">
+            <AuthButton />
+          </div>
         </div>
       </header>
 
       {/* Content */}
       <div className="mx-auto max-w-4xl px-4 py-10 space-y-6">
         {/* Search */}
-        <Card className="p-4 md:p-5">
+        <Card className={cx("p-4 md:p-5 relative isolate", recentOpen && "z-50")}>
+
           <form onSubmit={handleSearch} className="space-y-3">
             <div className="text-sm text-white/70">
               Search by Riot ID <span className="text-white/50">(name + tag)</span>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-2">
-              {/* Region */}
-              <div className="md:w-[140px]">
-                <label className="sr-only">Region</label>
-                <select
-                  value={platform}
-                  onChange={(e) => setPlatform(e.target.value)}
+            {/* Anchor the overlay to this wrapper */}
+            <div
+              ref={recentWrapRef}
+              className="relative"
+              onFocusCapture={() => setRecentOpen(true)}
+            >
+              <div className="flex flex-col md:flex-row gap-2">
+                {/* Region */}
+                <div className="md:w-[140px]">
+                  <label className="sr-only">Region</label>
+                  <select
+                    value={platform}
+                    onChange={(e) => setPlatform(e.target.value)}
+                    className={cx(
+                      "w-full rounded-xl border border-white/10 bg-black/30 px-3 py-3",
+                      "text-white outline-none",
+                      "focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
+                    )}
+                  >
+                    {REGIONS.map((r) => (
+                      <option key={r.value} value={r.value}>
+                        {r.label} ({r.value})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Name */}
+                <div className="flex-1">
+                  <label className="sr-only">Riot Name</label>
+                  <input
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Riot name (e.g., karh)"
+                    className={cx(
+                      "w-full rounded-xl border border-white/10 bg-black/30 px-3 py-3",
+                      "text-white placeholder:text-white/40 outline-none",
+                      "focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
+                    )}
+                  />
+                </div>
+
+                {/* Tag */}
+                <div className="md:w-[140px]">
+                  <label className="sr-only">Tag</label>
+                  <input
+                    value={tag}
+                    onChange={(e) => setTag(e.target.value)}
+                    placeholder="Tag (e.g., 0001)"
+                    className={cx(
+                      "w-full rounded-xl border border-white/10 bg-black/30 px-3 py-3",
+                      "text-white placeholder:text-white/40 outline-none",
+                      "focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
+                    )}
+                  />
+                </div>
+
+                {/* Button */}
+                <button
+                  disabled={loading}
                   className={cx(
-                    "w-full rounded-xl border border-white/10 bg-black/30 px-3 py-3",
-                    "text-white outline-none",
-                    "focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
+                    "md:w-[140px] rounded-xl px-4 py-3 font-semibold",
+                    "bg-amber-400 text-black",
+                    "hover:bg-amber-300 transition",
+                    "disabled:opacity-60 disabled:cursor-not-allowed"
                   )}
                 >
-                  {REGIONS.map((r) => (
-                    <option key={r.value} value={r.value}>
-                      {r.label} ({r.value})
-                    </option>
-                  ))}
-                </select>
+                  {loading ? "Searching..." : "Search"}
+                </button>
               </div>
 
-              {/* Name */}
-              <div className="flex-1">
-                <label className="sr-only">Riot Name</label>
-                <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Riot name (e.g., karh)"
-                  className={cx(
-                    "w-full rounded-xl border border-white/10 bg-black/30 px-3 py-3",
-                    "text-white placeholder:text-white/40 outline-none",
-                    "focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
-                  )}
-                />
-              </div>
+              {/* Overlay dropdown under the inputs */}
+              {recentOpen ? (
+                <div className="absolute left-0 right-0 top-full mt-2 z-[9999]">
+                  <RecentSearches
+                    onPick={(it) => {
+                      setPlatform(it.platform);
+                      setName(it.name);
+                      setTag(it.tag);
 
-              {/* Tag */}
-              <div className="md:w-[140px]">
-                <label className="sr-only">Tag</label>
-                <input
-                  value={tag}
-                  onChange={(e) => setTag(e.target.value)}
-                  placeholder="Tag (e.g., 0001)"
-                  className={cx(
-                    "w-full rounded-xl border border-white/10 bg-black/30 px-3 py-3",
-                    "text-white placeholder:text-white/40 outline-none",
-                    "focus:border-amber-400/50 focus:ring-2 focus:ring-amber-400/20"
-                  )}
-                />
-              </div>
+                      setRecentOpen(false);
 
-              {/* Button */}
-              <button
-                disabled={loading}
-                className={cx(
-                  "md:w-[140px] rounded-xl px-4 py-3 font-semibold",
-                  "bg-amber-400 text-black",
-                  "hover:bg-amber-300 transition",
-                  "disabled:opacity-60 disabled:cursor-not-allowed"
-                )}
-              >
-                {loading ? "Searching..." : "Search"}
-              </button>
+                      // trigger a search after state updates
+                      setTimeout(() => {
+                        const fakeEvent = { preventDefault: () => {} };
+                        handleSearch(fakeEvent);
+                      }, 0);
+                    }}
+                  />
+                </div>
+              ) : null}
             </div>
 
             {error ? (
@@ -333,7 +391,9 @@ export default function Home() {
                 </div>
                 <div className="mt-1 text-sm text-white/60">
                   Level <span className="text-white/80">{profile.summonerLevel}</span> •{" "}
-                  <span className="text-white/80">{profile.platform?.toUpperCase?.() || platform.toUpperCase()}</span>
+                  <span className="text-white/80">
+                    {profile.platform?.toUpperCase?.() || platform.toUpperCase()}
+                  </span>
                 </div>
               </div>
 
@@ -347,76 +407,87 @@ export default function Home() {
 
         {/* Ranked */}
         {ranked && (
-  <Card className="p-4 md:p-5">
-    <div className="flex items-center justify-between">
-      <div className="text-lg font-semibold">Ranked</div>
-      <div className="text-xs text-white/50">League-V4</div>
-    </div>
+          <Card className="p-4 md:p-5">
+            <div className="flex items-center justify-between">
+              <div className="text-lg font-semibold">Ranked</div>
+              <div className="text-xs text-white/50">League-V4</div>
+            </div>
 
-    {ranked.rankedStatus === "UNRANKED" || !ranked.entries || ranked.entries.length === 0 ? (
-      <div className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-white/70">
-        Unranked — play a ranked Solo/Duo or Flex match to populate this.
-      </div>
-    ) : (
-      <div className="mt-4 grid gap-3 md:grid-cols-2">
-        {ranked.entries
-          .slice()
-          .sort((a, b) => (a.queueType || "").localeCompare(b.queueType || ""))
-          .map((e) => {
-            const isSolo = e.queueType === "RANKED_SOLO_5x5";
-            const accent = isSolo ? "border-amber-400/30" : "border-white/10";
-            const pillBg = isSolo ? "bg-amber-400/10 text-amber-200 border-amber-400/20" : "bg-white/5 text-white/80 border-white/10";
-
-            return (
-              <div
-                key={e.queueType}
-                className={cx(
-                  "rounded-2xl border bg-black/20 p-4",
-                  "transition hover:bg-black/30 hover:shadow-lg hover:shadow-black/40",
-                  accent
-                )}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="text-sm text-white/60">{rankedQueueName(e.queueType)}</div>
-                    <div className="mt-1 text-xl font-semibold tracking-tight">
-                      {formatTierRank(e)}
-                      <span className="ml-2 text-sm font-medium text-white/60">
-                        {e.leaguePoints ?? 0} LP
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className={cx("shrink-0 rounded-full border px-3 py-1 text-xs font-semibold", pillBg)}>
-                    {e.hotStreak ? "Hot Streak" : e.veteran ? "Veteran" : e.freshBlood ? "Fresh Blood" : "Ranked"}
-                  </div>
-                </div>
-
-                <div className="mt-3 grid grid-cols-3 gap-2">
-                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-                    <div className="text-xs text-white/50">Wins</div>
-                    <div className="mt-1 text-base font-semibold">{e.wins ?? 0}</div>
-                  </div>
-                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-                    <div className="text-xs text-white/50">Losses</div>
-                    <div className="mt-1 text-base font-semibold">{e.losses ?? 0}</div>
-                  </div>
-                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-                    <div className="text-xs text-white/50">Winrate</div>
-                    <div className="mt-1 text-base font-semibold">{winrate(e.wins, e.losses)}</div>
-                  </div>
-                </div>
+            {ranked.rankedStatus === "UNRANKED" || !ranked.entries || ranked.entries.length === 0 ? (
+              <div className="mt-3 rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-white/70">
+                Unranked — play a ranked Solo/Duo or Flex match to populate this.
               </div>
-            );
-          })}
-      </div>
-    )}
-  </Card>
-)}
+            ) : (
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                {ranked.entries
+                  .slice()
+                  .sort((a, b) => (a.queueType || "").localeCompare(b.queueType || ""))
+                  .map((e) => {
+                    const isSolo = e.queueType === "RANKED_SOLO_5x5";
+                    const accent = isSolo ? "border-amber-400/30" : "border-white/10";
+                    const pillBg = isSolo
+                      ? "bg-amber-400/10 text-amber-200 border-amber-400/20"
+                      : "bg-white/5 text-white/80 border-white/10";
 
+                    return (
+                      <div
+                        key={e.queueType}
+                        className={cx(
+                          "rounded-2xl border bg-black/20 p-4",
+                          "transition hover:bg-black/30 hover:shadow-lg hover:shadow-black/40",
+                          accent
+                        )}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <div className="text-sm text-white/60">{rankedQueueName(e.queueType)}</div>
+                            <div className="mt-1 text-xl font-semibold tracking-tight">
+                              {formatTierRank(e)}
+                              <span className="ml-2 text-sm font-medium text-white/60">
+                                {e.leaguePoints ?? 0} LP
+                              </span>
+                            </div>
+                          </div>
+
+                          <div
+                            className={cx(
+                              "shrink-0 rounded-full border px-3 py-1 text-xs font-semibold",
+                              pillBg
+                            )}
+                          >
+                            {e.hotStreak
+                              ? "Hot Streak"
+                              : e.veteran
+                              ? "Veteran"
+                              : e.freshBlood
+                              ? "Fresh Blood"
+                              : "Ranked"}
+                          </div>
+                        </div>
+
+                        <div className="mt-3 grid grid-cols-3 gap-2">
+                          <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                            <div className="text-xs text-white/50">Wins</div>
+                            <div className="mt-1 text-base font-semibold">{e.wins ?? 0}</div>
+                          </div>
+                          <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                            <div className="text-xs text-white/50">Losses</div>
+                            <div className="mt-1 text-base font-semibold">{e.losses ?? 0}</div>
+                          </div>
+                          <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                            <div className="text-xs text-white/50">Winrate</div>
+                            <div className="mt-1 text-base font-semibold">{winrate(e.wins, e.losses)}</div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            )}
+          </Card>
+        )}
 
         {/* Matches */}
-        
         {matches.length > 0 && (
           <Card className="p-4 md:p-5">
             <div className="flex items-center justify-between">
@@ -431,7 +502,6 @@ export default function Home() {
                   : "bg-rose-400/15 text-rose-200 border-rose-400/20";
 
                 const stripe = m.win ? "border-l-emerald-400/60" : "border-l-rose-400/60";
-
                 const icon = championIconUrl(m.championName);
 
                 return (
@@ -440,7 +510,8 @@ export default function Home() {
                     href={`/match/${m.platform}/${m.matchId}`}
                     className={cx(
                       "block rounded-2xl border border-white/10 bg-black/20 p-3",
-                      "border-l-4", stripe,
+                      "border-l-4",
+                      stripe,
                       "transition hover:bg-black/30",
                       "shadow-sm hover:shadow-lg",
                       m.win ? "hover:shadow-emerald-500/10" : "hover:shadow-rose-500/10"
@@ -449,7 +520,6 @@ export default function Home() {
                     <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 ">
                       {/* Left: Champion + queue */}
                       <div className="min-w-0 flex items-center gap-3">
-                        {/* Champion icon */}
                         <div className="h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black/30">
                           {icon ? (
                             <img
@@ -458,7 +528,6 @@ export default function Home() {
                               className="h-full w-full object-cover object-center"
                               loading="lazy"
                               onError={(e) => {
-                                // If DDragon misses, hide image (fallback stays)
                                 e.currentTarget.style.display = "none";
                               }}
                             />
@@ -493,16 +562,13 @@ export default function Home() {
                   </a>
                 );
               })}
-
             </div>
           </Card>
         )}
 
         {/* Empty state */}
         {!loading && !profile && (
-          <div className="text-center text-sm text-white/45">
-            Enter a Riot ID above to fetch stats.
-          </div>
+          <div className="text-center text-sm text-white/45">Enter a Riot ID above to fetch stats.</div>
         )}
       </div>
     </main>
