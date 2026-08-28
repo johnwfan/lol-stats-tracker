@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
+import Footer from "@/components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,15 +14,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "LoL Stats Tracker",
-  description: "Search up your Riot account and find your recent League of Legends match information!",
+  title: "Scuttle — League of Legends Stats Tracker",
+  description:
+    "Scuttle is a League of Legends stats tracker — search any Riot ID for ranked progress, live profile info, and match history.",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="bg-animated-grid min-h-screen text-white">
-        <Providers>{children}</Providers>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} bg-dot-grid font-sans min-h-screen text-text-primary antialiased flex flex-col`}
+      >
+        <Providers>
+          {children}
+          <Footer />
+        </Providers>
       </body>
     </html>
   );
