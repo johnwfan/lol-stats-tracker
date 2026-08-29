@@ -8,8 +8,10 @@ A full-stack web app that pulls **League of Legends player + match data** and tu
 
 - Live: [https://lol-stats-tracker-johnf.vercel.app/](https://lol-stats-tracker-johnf.vercel.app/)
 - Screenshots:
-<img width="959" height="911" alt="Screenshot 2025-12-27 034816" src="https://github.com/user-attachments/assets/c0aea3b0-24f0-4b5f-9a4c-3c01e0d7721d" />
-<img width="1009" height="913" alt="Screenshot 2025-12-27 034904" src="https://github.com/user-attachments/assets/2c00e6d2-3b13-475f-90a6-b06244f34066" />
+<img width="1253" height="713" alt="image" src="https://github.com/user-attachments/assets/0f872dcb-b1e0-4902-9f4c-90c4bc178fae" />
+<img width="1037" height="850" alt="image" src="https://github.com/user-attachments/assets/d912d0fe-2e62-48ee-82aa-4d0b92608e09" />
+<img width="1017" height="850" alt="image" src="https://github.com/user-attachments/assets/5b35b707-eaec-4681-877f-011f0172dcf9" />
+
 
 
 ---
@@ -24,6 +26,8 @@ A full-stack web app that pulls **League of Legends player + match data** and tu
 - Recent match list (champion, role, KDA, duration, result)
 - Match details: items, runes, CS/min, vision, damage *(if implemented)*
 - Filters by queue / role / champion *(if implemented)*
+<img width="950" height="849" alt="image" src="https://github.com/user-attachments/assets/de5b6cfb-b378-4067-af8c-7aae088db0e7" />
+
 
 ### Performance Insights
 - Rolling averages (KDA, KP%, CS/min, vision score) *(if implemented)*
