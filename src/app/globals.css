@@ -77,49 +77,9 @@ body {
   background-size: 28px 28px;
 }
 
-.bg-dot-grid::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-
-  background:
-    radial-gradient(900px 600px at 15% 0%, rgba(255, 70, 85, 0.12), transparent 60%),
-    radial-gradient(700px 500px at 85% 100%, rgba(255, 70, 85, 0.08), transparent 55%);
-}
-
-/* --- Hero backdrop: soft gradient-blob wash + locally-masked dot layer --- */
 .hero-band {
   position: relative;
   isolation: isolate;
-}
-
-.hero-band::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-  pointer-events: none;
-
-  background:
-    radial-gradient(640px 420px at 20% 10%, rgba(255, 70, 85, 0.22), transparent 65%),
-    radial-gradient(560px 380px at 82% 20%, rgba(255, 70, 85, 0.14), transparent 60%),
-    radial-gradient(720px 480px at 50% 100%, rgba(255, 124, 135, 0.16), transparent 70%);
-  filter: blur(40px);
-}
-
-.hero-band::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-
-  background-image: radial-gradient(rgba(242, 243, 245, 0.08) 1px, transparent 1px);
-  background-size: 28px 28px;
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 40%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 40%, transparent 100%);
 }
 
 /* --- Animated glow ring, e.g. around the search bar --- */
