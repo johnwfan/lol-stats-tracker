@@ -1,28 +1,31 @@
 @import "tailwindcss";
 
 :root {
-  --color-base: #F3F8FC;
-  --color-surface: #E4EEF6;
-  --color-border: rgba(15, 23, 42, 0.10);
-  --color-border-strong: rgba(15, 23, 42, 0.18);
+  --color-base: #1E1F22;
+  --color-surface: #2B2D31;
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-border-strong: rgba(255, 255, 255, 0.12);
 
-  --color-text-primary: #0F172A;
-  --color-text-secondary: #475569;
-  --color-text-muted: rgba(71, 85, 105, 0.62);
+  --color-text-primary: #F2F3F5;
+  --color-text-secondary: #949BA4;
+  --color-text-muted: rgba(148, 155, 164, 0.65);
 
-  --color-accent: #0369A1;
-  --color-accent-hover: #075985;
-  --color-accent-soft: #38BDF8;
-  --color-accent-deep: #0C4A6E;
+  --color-accent: #FF4655;
+  --color-accent-hover: #D8303F;
+  --color-accent-soft: #FF7C87;
+  --color-accent-deep: #8A1F2B;
 
-  --color-win: #047857;
-  --color-win-soft: rgba(4, 120, 87, 0.12);
-  --color-loss: #BE123C;
-  --color-loss-soft: rgba(190, 18, 60, 0.12);
-  --color-error: #DC2626;
+  --color-win: #23A55A;
+  --color-win-soft: rgba(35, 165, 90, 0.15);
+  --color-loss: #F23F42;
+  --color-loss-soft: rgba(242, 63, 66, 0.15);
+  --color-error: #F23F42;
+  --color-warning: #F0B232;
+  --color-warning-soft: rgba(240, 178, 50, 0.15);
 
-  --color-card: #FFFFFF;
-  --color-overlay-hover: rgba(15, 23, 42, 0.05);
+  --color-card: #313338;
+  --color-overlay-hover: rgba(255, 255, 255, 0.06);
+  --color-shadow: rgba(0, 0, 0, 0.45);
 }
 
 @theme inline {
@@ -42,8 +45,11 @@
   --color-loss: var(--color-loss);
   --color-loss-soft: var(--color-loss-soft);
   --color-error: var(--color-error);
+  --color-warning: var(--color-warning);
+  --color-warning-soft: var(--color-warning-soft);
   --color-card: var(--color-card);
   --color-overlay-hover: var(--color-overlay-hover);
+  --color-shadow: var(--color-shadow);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -67,7 +73,7 @@ body {
   z-index: -1;
   pointer-events: none;
 
-  background-image: radial-gradient(rgba(15, 23, 42, 0.06) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(242, 243, 245, 0.06) 1px, transparent 1px);
   background-size: 28px 28px;
 }
 
@@ -79,8 +85,8 @@ body {
   pointer-events: none;
 
   background:
-    radial-gradient(900px 600px at 15% 0%, rgba(56, 189, 248, 0.10), transparent 60%),
-    radial-gradient(700px 500px at 85% 100%, rgba(14, 165, 233, 0.08), transparent 55%);
+    radial-gradient(900px 600px at 15% 0%, rgba(255, 70, 85, 0.12), transparent 60%),
+    radial-gradient(700px 500px at 85% 100%, rgba(255, 70, 85, 0.08), transparent 55%);
 }
 
 /* --- Hero backdrop: soft gradient-blob wash + locally-masked dot layer --- */
@@ -97,9 +103,9 @@ body {
   pointer-events: none;
 
   background:
-    radial-gradient(640px 420px at 20% 10%, rgba(56, 189, 248, 0.22), transparent 65%),
-    radial-gradient(560px 380px at 82% 20%, rgba(14, 165, 233, 0.16), transparent 60%),
-    radial-gradient(720px 480px at 50% 100%, rgba(186, 230, 253, 0.35), transparent 70%);
+    radial-gradient(640px 420px at 20% 10%, rgba(255, 70, 85, 0.22), transparent 65%),
+    radial-gradient(560px 380px at 82% 20%, rgba(255, 70, 85, 0.14), transparent 60%),
+    radial-gradient(720px 480px at 50% 100%, rgba(255, 124, 135, 0.16), transparent 70%);
   filter: blur(40px);
 }
 
@@ -110,8 +116,45 @@ body {
   z-index: -1;
   pointer-events: none;
 
-  background-image: radial-gradient(rgba(15, 23, 42, 0.07) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(242, 243, 245, 0.08) 1px, transparent 1px);
   background-size: 28px 28px;
   mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 40%, transparent 100%);
   -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 40%, transparent 100%);
+}
+
+/* --- Animated glow ring, e.g. around the search bar --- */
+@property --glow-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes glow-spin {
+  to {
+    --glow-angle: 360deg;
+  }
+}
+
+.glow-ring {
+  position: relative;
+  border-radius: 1.5rem;
+}
+
+.glow-ring::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  z-index: -1;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--glow-angle),
+    var(--color-accent),
+    var(--color-accent-deep),
+    var(--color-accent-soft),
+    var(--color-accent-deep),
+    var(--color-accent)
+  );
+  filter: blur(16px);
+  opacity: 0.65;
+  animation: glow-spin 6s linear infinite;
 }
