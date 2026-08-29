@@ -13,9 +13,9 @@ interface ExampleSearch {
 }
 
 const EXAMPLE_SEARCHES: ExampleSearch[] = [
-  { platform: "na1", name: "Doublelift", tag: "NA1" },
-  { platform: "kr", name: "Hide on bush", tag: "KR1" },
-  { platform: "euw1", name: "Caps", tag: "EUW" },
+  { platform: "na1", name: "Ablazeolive", tag: "NA1" },
+  { platform: "na1", name: "Davemon", tag: "NA1" },
+  { platform: "na1", name: "Will", tag: "NA12" },
 ];
 
 export default function SearchChips() {
