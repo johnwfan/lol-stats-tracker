@@ -1,16 +1,18 @@
-# Draft Intelligence — Data Pipeline (Day 1)
+# Draft Intelligence — Data Pipeline
 
-Collects ranked Solo/Duo matches from the Riot API and turns them into a
+Collects ranked Solo/Duo matches from the Riot API, turns them into a
 draft-only training dataset (champion picks by role + win outcome, nothing
-from after champion select). This is data collection and dataset
-preparation only — no model training yet.
+from after champion select), and trains/evaluates a baseline win-probability
+model from that dataset.
 
 ## Pipeline
 
 ```
-collect.py  -> data/raw/{matchId}.json       (raw Match-V5 responses)
-preprocess.py -> data/processed/dataset.parquet  (one row per match)
-validate.py  -> checks the processed dataset for integrity/leakage
+collect.py    -> data/raw/{matchId}.json           (raw Match-V5 responses)
+preprocess.py -> data/processed/dataset.parquet     (one row per match)
+validate.py   -> checks the processed dataset for integrity/leakage
+train.py      -> artifacts/baseline_model.joblib, test_predictions.parquet, training_config.json
+evaluate.py   -> artifacts/metrics.json, calibration_plot.png
 ```
 
 ## Role assignment
@@ -98,3 +100,48 @@ python validate.py
 
 Exits non-zero if any check fails. Prints a pass/fail line per check plus
 the row-level failure count for anything that fails.
+
+## Train the baseline models
+
+```bash
+python train.py
+```
+
+Fits two models on the processed dataset, using only the 10 champion-role
+columns as features (one-hot encoded via a scikit-learn `ColumnTransformer`):
+a trivial `DummyClassifier(strategy="prior")` baseline (always predicts the
+training set's historical blue-win rate), and a `LogisticRegression` model.
+
+The split is **chronological by patch**, not random: the newest patch in the
+dataset becomes the test set, everything older is training data. This
+measures whether the model generalizes to a patch it has never seen —
+the realistic scenario for a draft tool — rather than just interpolating
+within patches it was already trained on.
+
+Writes to `artifacts/`: `baseline_model.joblib` (the fitted logistic
+regression pipeline — preprocessing + model together, so it's ready to
+call `.predict_proba()` on new draft data), `test_predictions.parquet`
+(both models' predictions on the held-out patch), and
+`training_config.json` (seed, split, hyperparameters — for reproducibility).
+
+## Evaluate
+
+```bash
+python evaluate.py
+```
+
+Computes accuracy, ROC-AUC, log loss, Brier score, and a confusion matrix
+for both models on the same held-out test set, and reports the delta
+between them. Also produces a calibration plot (`artifacts/calibration_plot.png`)
+checking whether predicted probabilities match observed win rates — with
+a logged caveat that the ~212-row single-patch test set makes this a rough
+qualitative read, not a precise measurement.
+
+Logistic regression coefficients are inspected and written to
+`artifacts/metrics.json` as the strongest positive/negative champion-role
+associations found in the training data — framed as associations the model
+found, not causal claims, since a linear model over one-hot features can't
+represent champion synergies or counters.
+
+All of `artifacts/` is gitignored (regenerable by rerunning `train.py` then
+`evaluate.py`), same convention as `data/raw|processed|state/`.

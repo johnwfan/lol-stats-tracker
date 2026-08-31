@@ -48,4 +48,5 @@ ml/__pycache__/
 ml/data/raw/
 ml/data/processed/
 ml/data/state/
+ml/artifacts/
 ml/*.log
