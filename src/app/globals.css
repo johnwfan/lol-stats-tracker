@@ -1,36 +1,56 @@
 @import "tailwindcss";
 
 :root {
-  --color-base: #1E1F22;
-  --color-surface: #2B2D31;
-  --color-border: rgba(255, 255, 255, 0.06);
-  --color-border-strong: rgba(255, 255, 255, 0.12);
+  --color-base: #FFFFFF;
+  --color-surface: #F6F7F9;
+  --color-card: #FFFFFF;
 
-  --color-text-primary: #F2F3F5;
-  --color-text-secondary: #949BA4;
-  --color-text-muted: rgba(148, 155, 164, 0.65);
+  --color-border: #E4E7ED;
+  --color-border-strong: #CDD3DE;
 
-  --color-accent: #FF4655;
-  --color-accent-hover: #D8303F;
-  --color-accent-soft: #FF7C87;
-  --color-accent-deep: #8A1F2B;
+  --color-text-primary: #00043A;
+  --color-text-secondary: #4C5876;
+  --color-text-muted: #7C87A0;
 
-  --color-win: #23A55A;
-  --color-win-soft: rgba(35, 165, 90, 0.15);
-  --color-loss: #F23F42;
-  --color-loss-soft: rgba(242, 63, 66, 0.15);
-  --color-error: #F23F42;
-  --color-warning: #F0B232;
-  --color-warning-soft: rgba(240, 178, 50, 0.15);
+  --color-accent: #FF002B;
+  --color-accent-hover: #C00021;
+  --color-accent-soft: rgba(255, 0, 43, 0.10);
+  --color-accent-deep: #7A0016;
 
-  --color-card: #313338;
-  --color-overlay-hover: rgba(255, 255, 255, 0.06);
-  --color-shadow: rgba(0, 0, 0, 0.45);
+  --color-gold: #C08A1F;
+  --color-gold-soft: rgba(192, 138, 31, 0.12);
+
+  --color-periwinkle: #6C5CE0;
+  --color-periwinkle-soft: rgba(108, 92, 224, 0.12);
+
+  --color-coral: #D93A3A;
+  --color-coral-soft: rgba(217, 58, 58, 0.12);
+
+  --color-win: #16A34A;
+  --color-win-soft: rgba(22, 163, 74, 0.10);
+  --color-loss: #FF002B;
+  --color-loss-soft: rgba(255, 0, 43, 0.10);
+  --color-error: #FF002B;
+
+  --color-overlay-hover: rgba(0, 4, 58, 0.04);
+  --color-shadow: rgba(0, 4, 58, 0.14);
+
+  /* --- Homepage-only palette (namespaced hp-*, additive — dashboard tokens above are untouched) --- */
+  --color-hp-bg: #FFFFFF;
+  --color-hp-ink: #00043A;
+  --color-hp-navy: #002962;
+  --color-hp-navy-light: #407BA7;
+  --color-hp-red: #FF002B;
+  --color-hp-red-deep: #C00021;
+  --color-hp-muted: #5C6B85;
+  --color-hp-border: rgba(0, 4, 58, 0.12);
+  --color-hp-win: #16A34A;
 }
 
 @theme inline {
   --color-base: var(--color-base);
   --color-surface: var(--color-surface);
+  --color-card: var(--color-card);
   --color-border: var(--color-border);
   --color-border-strong: var(--color-border-strong);
   --color-text-primary: var(--color-text-primary);
@@ -40,18 +60,32 @@
   --color-accent-hover: var(--color-accent-hover);
   --color-accent-soft: var(--color-accent-soft);
   --color-accent-deep: var(--color-accent-deep);
+  --color-gold: var(--color-gold);
+  --color-gold-soft: var(--color-gold-soft);
+  --color-periwinkle: var(--color-periwinkle);
+  --color-periwinkle-soft: var(--color-periwinkle-soft);
+  --color-coral: var(--color-coral);
+  --color-coral-soft: var(--color-coral-soft);
   --color-win: var(--color-win);
   --color-win-soft: var(--color-win-soft);
   --color-loss: var(--color-loss);
   --color-loss-soft: var(--color-loss-soft);
   --color-error: var(--color-error);
-  --color-warning: var(--color-warning);
-  --color-warning-soft: var(--color-warning-soft);
-  --color-card: var(--color-card);
   --color-overlay-hover: var(--color-overlay-hover);
   --color-shadow: var(--color-shadow);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-bebas);
+  --font-mono: var(--font-jetbrains-mono);
+
+  --color-hp-bg: var(--color-hp-bg);
+  --color-hp-ink: var(--color-hp-ink);
+  --color-hp-navy: var(--color-hp-navy);
+  --color-hp-navy-light: var(--color-hp-navy-light);
+  --color-hp-red: var(--color-hp-red);
+  --color-hp-red-deep: var(--color-hp-red-deep);
+  --color-hp-muted: var(--color-hp-muted);
+  --color-hp-border: var(--color-hp-border);
+  --color-hp-win: var(--color-hp-win);
 }
 
 body {
@@ -59,22 +93,8 @@ body {
   color: var(--color-text-primary);
 }
 
-/* --- Static dotted grid background --- */
 .bg-dot-grid {
-  position: relative;
-  isolation: isolate;
   background-color: var(--color-base);
-}
-
-.bg-dot-grid::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-
-  background-image: radial-gradient(rgba(242, 243, 245, 0.06) 1px, transparent 1px);
-  background-size: 28px 28px;
 }
 
 .hero-band {
@@ -82,19 +102,7 @@ body {
   isolation: isolate;
 }
 
-/* --- Animated glow ring, e.g. around the search bar --- */
-@property --glow-angle {
-  syntax: "<angle>";
-  initial-value: 0deg;
-  inherits: false;
-}
-
-@keyframes glow-spin {
-  to {
-    --glow-angle: 360deg;
-  }
-}
-
+/* --- Subtle glow, e.g. around the search bar --- */
 .glow-ring {
   position: relative;
   border-radius: 1.5rem;
@@ -103,18 +111,22 @@ body {
 .glow-ring::before {
   content: "";
   position: absolute;
-  inset: -4px;
+  inset: -3px;
   z-index: -1;
   border-radius: inherit;
-  background: conic-gradient(
-    from var(--glow-angle),
-    var(--color-accent),
-    var(--color-accent-deep),
-    var(--color-accent-soft),
-    var(--color-accent-deep),
-    var(--color-accent)
+
+  background: radial-gradient(
+    130% 160% at 50% 0%,
+    var(--color-accent) 0%,
+    var(--color-accent-soft) 40%,
+    transparent 72%
   );
-  filter: blur(16px);
-  opacity: 0.65;
-  animation: glow-spin 6s linear infinite;
+  filter: blur(20px);
+  opacity: 0.22;
+  transition: opacity 0.3s ease;
 }
+
+.glow-ring:focus-within::before {
+  opacity: 0.38;
+}
+

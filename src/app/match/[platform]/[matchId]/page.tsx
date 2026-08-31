@@ -5,6 +5,9 @@ import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
 import MatchTeamTable from "@/components/MatchTeamTable";
 import ErrorBanner from "@/components/ui/ErrorBanner";
+import { getLatestDdragonVersion } from "@/lib/ddragon";
+import { queueName } from "@/lib/queues";
+import { formatDuration } from "@/lib/utils";
 import type { MatchDto, ParticipantDto } from "@/lib/riot/types";
 
 async function parseJsonResponse(res: Response) {
@@ -24,6 +27,11 @@ export default function MatchPage() {
   const [loading, setLoading] = useState(true);
   const [match, setMatch] = useState<MatchDto | null>(null);
   const [error, setError] = useState("");
+  const [ddVersion, setDdVersion] = useState<string | null>(null);
+
+  useEffect(() => {
+    getLatestDdragonVersion().then(setDdVersion);
+  }, []);
 
   useEffect(() => {
     if (!platform || !matchId) return;
@@ -63,19 +71,33 @@ export default function MatchPage() {
     return Array.from(map.entries()).sort(([a], [b]) => a - b);
   }, [participants]);
 
+  const blueTeam = teams.find(([id]) => id === 100)?.[1] ?? [];
+  const redTeam = teams.find(([id]) => id === 200)?.[1] ?? [];
+  const blueKills = blueTeam.reduce((s, p) => s + (p.kills || 0), 0);
+  const redKills = redTeam.reduce((s, p) => s + (p.kills || 0), 0);
+  const blueWon = blueTeam[0]?.win ?? false;
+
   return (
     <main>
       <Navbar backHref="/" backLabel="Back" />
 
       <div className="mx-auto max-w-5xl px-4 py-8 space-y-6">
         <div>
-          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-text-primary">
-            Match <span className="text-text-muted">{matchId || "(loading...)"}</span>
-          </h1>
-          <div className="mt-1 text-sm text-text-secondary">
-            Platform {platform ? platform.toUpperCase() : "(loading)"} • Queue {info?.queueId ?? "—"} • Duration{" "}
-            {info?.gameDuration ? `${Math.round(info.gameDuration / 60)}m` : "—"}
+          <div className="text-xs font-medium uppercase tracking-wide text-text-muted">
+            {info ? queueName(info.queueId) : "Match"}
+            {info ? ` · ${formatDuration(info.gameDuration)}` : ""}
           </div>
+          {info && teams.length === 2 ? (
+            <div className="mt-1 flex items-baseline gap-2 font-display text-2xl font-bold md:text-3xl">
+              <span className={blueWon ? "text-win" : "text-loss"}>Blue {blueKills}</span>
+              <span className="text-text-muted">—</span>
+              <span className={blueWon ? "text-loss" : "text-win"}>{redKills} Red</span>
+            </div>
+          ) : (
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-text-primary md:text-3xl">
+              Match <span className="text-text-muted">{matchId || "(loading...)"}</span>
+            </h1>
+          )}
         </div>
 
         {!platform || !matchId ? (
@@ -87,7 +109,7 @@ export default function MatchPage() {
         ) : (
           <div className="grid gap-6">
             {teams.map(([teamId, arr]) => (
-              <MatchTeamTable key={teamId} teamId={teamId} participants={arr} />
+              <MatchTeamTable key={teamId} teamId={teamId} participants={arr} ddVersion={ddVersion} />
             ))}
           </div>
         )}

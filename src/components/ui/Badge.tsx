@@ -6,7 +6,9 @@ const TONES = {
   accent: "border-accent/20 bg-accent/10 text-accent",
   win: "border-win/20 bg-win-soft text-win",
   loss: "border-loss/20 bg-loss-soft text-loss",
-  warning: "border-warning/20 bg-warning-soft text-warning",
+  gold: "border-gold/20 bg-gold-soft text-gold",
+  periwinkle: "border-periwinkle/20 bg-periwinkle-soft text-periwinkle",
+  coral: "border-coral/20 bg-coral-soft text-coral",
 } as const;
 
 interface BadgeProps {

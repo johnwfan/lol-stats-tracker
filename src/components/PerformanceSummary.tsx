@@ -1,12 +1,13 @@
 import Card from "@/components/ui/Card";
-import StatTile from "@/components/ui/StatTile";
+import StatRow from "@/components/ui/StatRow";
 import type { MatchSummary } from "@/types/domain";
 
 interface PerformanceSummaryProps {
   matches: MatchSummary[];
+  bare?: boolean;
 }
 
-export default function PerformanceSummary({ matches }: PerformanceSummaryProps) {
+export default function PerformanceSummary({ matches, bare = false }: PerformanceSummaryProps) {
   if (!matches || matches.length === 0) return null;
 
   const total = matches.length;
@@ -27,14 +28,27 @@ export default function PerformanceSummary({ matches }: PerformanceSummaryProps)
   const mostPlayedEntry = Object.entries(champCounts).sort((a, b) => b[1] - a[1])[0];
   const mostPlayed = mostPlayedEntry ? `${mostPlayedEntry[0]} (${mostPlayedEntry[1]})` : "—";
 
+  const content = (
+    <>
+      <div className="text-sm font-semibold uppercase tracking-wide text-text-secondary">
+        Last {total} Games
+      </div>
+      <StatRow
+        className="mt-3"
+        items={[
+          { label: "Win Rate", value: `${winRate}%` },
+          { label: "Avg KDA", value: avgKDA },
+          { label: "Most Played", value: mostPlayed },
+        ]}
+      />
+    </>
+  );
+
+  if (bare) return content;
+
   return (
     <Card hover={false} className="p-4 md:p-5">
-      <div className="text-lg font-semibold text-text-primary">Last {total} Games</div>
-      <div className="mt-4 grid grid-cols-3 gap-3">
-        <StatTile label="Win Rate" value={`${winRate}%`} />
-        <StatTile label="Avg KDA" value={avgKDA} />
-        <StatTile label="Most Played" value={mostPlayed} />
-      </div>
+      {content}
     </Card>
   );
 }

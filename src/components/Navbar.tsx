@@ -10,7 +10,7 @@ interface NavbarProps {
 
 export default function Navbar({ backHref, backLabel = "Back" }: NavbarProps) {
   return (
-    <header className="sticky top-0 z-20 border-b border-border bg-card/80 backdrop-blur-md">
+    <header className="sticky top-0 z-20 border-b border-border bg-surface/90 backdrop-blur-md">
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
         <div className="flex items-center gap-2">
           {backHref ? (
@@ -19,13 +19,19 @@ export default function Navbar({ backHref, backLabel = "Back" }: NavbarProps) {
             </Button>
           ) : null}
 
-          <Link href="/" className="text-xl font-bold tracking-tight text-text-primary md:text-2xl">
-            Scuttle
+          <Link href="/" className="flex items-center gap-1.5 text-xl font-bold tracking-tight text-text-primary md:text-2xl">
+            <span className="font-display">scuttle.gg</span>
           </Link>
         </div>
 
         <div className="flex items-center gap-2">
-          <Button href="/settings" variant="ghost" size="sm" aria-label="Settings" className="px-2.5">
+          <Button
+            href="/settings"
+            variant="ghost"
+            size="sm"
+            aria-label="Settings"
+            className="border-border-strong px-2.5"
+          >
             <Settings className="h-4 w-4" />
           </Button>
           <AuthButton />

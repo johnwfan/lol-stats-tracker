@@ -1,5 +1,3 @@
-import Card from "@/components/ui/Card";
-import Badge from "@/components/ui/Badge";
 import { championIconUrl } from "@/lib/ddragon";
 import { formatRelativeTime } from "@/lib/utils";
 import type { ChampionMasteryDto } from "@/lib/riot/types";
@@ -14,10 +12,12 @@ export default function ChampionMastery({ masteries, championMap }: ChampionMast
   if (!masteries || masteries.length === 0) return null;
 
   return (
-    <Card hover={false} className="p-4 md:p-5">
-      <div className="text-lg font-semibold text-text-primary">Champion Mastery</div>
+    <div>
+      <div className="text-sm font-semibold uppercase tracking-wide text-text-secondary">
+        Champion Mastery
+      </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
         {masteries.map((m) => {
           const champ = championMap?.[m.championId];
           const icon = champ ? championIconUrl(champ.id) : null;
@@ -25,28 +25,33 @@ export default function ChampionMastery({ masteries, championMap }: ChampionMast
           return (
             <div
               key={m.championId}
-              className="flex items-center gap-3 rounded-xl border border-border bg-card p-3"
+              className="group relative overflow-hidden rounded-xl bg-surface"
+              title={champ?.name ? `Last played ${formatRelativeTime(m.lastPlayTime)}` : undefined}
             >
-              <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-border">
-                {icon ? (
-                  <img src={icon} alt={champ?.name || ""} className="h-full w-full object-cover" loading="lazy" />
-                ) : null}
-              </div>
+              {icon ? (
+                <img
+                  src={icon}
+                  alt={champ?.name || ""}
+                  className="aspect-square w-full object-cover transition duration-300 group-hover:scale-105"
+                  loading="lazy"
+                />
+              ) : (
+                <div className="aspect-square w-full" />
+              )}
 
-              <div className="min-w-0 flex-1">
-                <div className="truncate font-semibold text-text-primary">{champ?.name || "Unknown"}</div>
-                <div className="text-xs text-text-secondary">
-                  {m.championPoints.toLocaleString()} pts • {formatRelativeTime(m.lastPlayTime)}
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-2.5 pt-6">
+                <div className="flex items-center justify-between gap-1">
+                  <span className="truncate text-sm font-semibold text-white">{champ?.name || "Unknown"}</span>
+                  <span className="shrink-0 font-mono text-[11px] font-medium text-white/80">
+                    Lv {m.championLevel}
+                  </span>
                 </div>
+                <div className="mt-0.5 text-xs text-white/70">{m.championPoints.toLocaleString()} pts</div>
               </div>
-
-              <Badge tone="accent" className="shrink-0">
-                Lv {m.championLevel}
-              </Badge>
             </div>
           );
         })}
       </div>
-    </Card>
+    </div>
   );
 }

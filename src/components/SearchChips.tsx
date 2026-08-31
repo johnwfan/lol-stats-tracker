@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Clock, Sparkles } from "lucide-react";
 import type { RecentSearchItem } from "@/types/domain";
 
 interface ExampleSearch {
@@ -39,13 +38,14 @@ export default function SearchChips() {
 
   const hasHistory = !!session && items.length > 0;
   const list: (RecentSearchItem | ExampleSearch)[] = hasHistory ? items : EXAMPLE_SEARCHES;
-  const Icon = hasHistory ? Clock : Sparkles;
   const key = (it: RecentSearchItem | ExampleSearch): string =>
     "_id" in it ? it._id : `${it.platform}-${it.name}-${it.tag}`;
 
   return (
-    <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
-      <span className="text-xs text-text-muted">{hasHistory ? "Jump back in:" : "Try an example:"}</span>
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-1">
+      <span className="text-[11px] font-medium uppercase tracking-wide text-hp-ink/45">
+        {hasHistory ? "Jump back in" : "Try a wandering summoner"}
+      </span>
       {list.map((it) => (
         <button
           key={key(it)}
@@ -53,10 +53,12 @@ export default function SearchChips() {
           onClick={() =>
             router.push(`/${it.platform}/${encodeURIComponent(it.name)}/${encodeURIComponent(it.tag)}`)
           }
-          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs text-text-secondary transition hover:border-accent/40 hover:bg-overlay-hover hover:text-text-primary"
+          className="group inline-flex items-center gap-1 text-sm text-hp-ink/80 transition hover:text-hp-ink"
         >
-          <Icon className="h-3 w-3" />
-          {it.name}#{it.tag}
+          <span className="underline decoration-hp-ink/25 underline-offset-4 transition group-hover:decoration-hp-red">
+            {it.name}#{it.tag}
+          </span>
+          <span className="transition group-hover:translate-x-0.5">↗</span>
         </button>
       ))}
     </div>

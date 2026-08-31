@@ -135,7 +135,7 @@ export default function SettingsPage() {
                   )}
                   style={{ backgroundColor: s.color }}
                 >
-                  {s.active ? <Check className="h-4 w-4 text-white" /> : null}
+                  {s.active ? <Check className="h-4 w-4 text-[color:var(--color-base)]" /> : null}
                 </button>
               ))}
             </div>
@@ -152,7 +152,9 @@ export default function SettingsPage() {
                   onClick={() => setIntensity(opt)}
                   className={cn(
                     "rounded-full px-3 py-1.5 text-xs font-medium transition",
-                    intensity === opt ? "bg-accent text-white" : "text-text-secondary hover:text-text-primary"
+                    intensity === opt
+                      ? "bg-accent text-[color:var(--color-base)]"
+                      : "text-text-secondary hover:text-text-primary"
                   )}
                 >
                   {opt}

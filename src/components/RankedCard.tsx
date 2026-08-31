@@ -4,7 +4,7 @@ import { motion, type Variants } from "framer-motion";
 import { Trophy, Flame } from "lucide-react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
-import StatTile from "@/components/ui/StatTile";
+import StatRow from "@/components/ui/StatRow";
 import { cn } from "@/lib/utils";
 import type { LeagueEntryDto } from "@/lib/riot/types";
 import type { RankedData } from "@/types/domain";
@@ -50,7 +50,7 @@ export default function RankedCard({ ranked }: RankedCardProps) {
     <Card hover={false} className="p-4 md:p-5">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-lg font-semibold text-text-primary">
-          <Trophy className="h-4 w-4 text-accent" />
+          <Trophy className="h-4 w-4 text-gold" />
           Ranked
         </div>
         <div className="text-xs text-text-muted">League-V4</div>
@@ -65,14 +65,14 @@ export default function RankedCard({ ranked }: RankedCardProps) {
           variants={listVariants}
           initial="hidden"
           animate="show"
-          className="mt-4 grid gap-3 md:grid-cols-2"
+          className="mt-4 grid gap-3 xl:grid-cols-2"
         >
           {ranked.entries
             .slice()
             .sort((a, b) => (a.queueType || "").localeCompare(b.queueType || ""))
             .map((e) => {
               const isSolo = e.queueType === "RANKED_SOLO_5x5";
-              const accent = isSolo ? "border-accent/30" : "border-border";
+              const accent = isSolo ? "border-gold/30" : "border-border";
 
               return (
                 <motion.div
@@ -96,7 +96,7 @@ export default function RankedCard({ ranked }: RankedCardProps) {
                     </div>
 
                     <div className="flex flex-col items-end gap-1">
-                      <Badge tone={isSolo ? "accent" : "default"}>
+                      <Badge tone={e.hotStreak ? "coral" : isSolo ? "gold" : "default"}>
                         {e.hotStreak ? (
                           <>
                             <Flame className="h-3.5 w-3.5" /> Hot Streak
@@ -109,15 +109,18 @@ export default function RankedCard({ ranked }: RankedCardProps) {
                           "Ranked"
                         )}
                       </Badge>
-                      {e.inactive ? <Badge tone="warning">Inactive</Badge> : null}
+                      {e.inactive ? <Badge tone="gold">Inactive</Badge> : null}
                     </div>
                   </div>
 
-                  <div className="mt-3 grid grid-cols-3 gap-2">
-                    <StatTile label="Wins" value={e.wins ?? 0} />
-                    <StatTile label="Losses" value={e.losses ?? 0} />
-                    <StatTile label="Winrate" value={winrate(e.wins, e.losses)} />
-                  </div>
+                  <StatRow
+                    className="mt-3"
+                    items={[
+                      { label: "Wins", value: e.wins ?? 0 },
+                      { label: "Losses", value: e.losses ?? 0 },
+                      { label: "Winrate", value: winrate(e.wins, e.losses) },
+                    ]}
+                  />
                 </motion.div>
               );
             })}

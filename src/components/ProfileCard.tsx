@@ -37,7 +37,7 @@ export default function ProfileCard({ profile, platform, ddVersion }: ProfileCar
         </div>
 
         {profile.lastFetchedAt ? (
-          <Badge tone="accent" className="shrink-0">
+          <Badge tone="default" className="shrink-0">
             Updated {formatRelativeTime(new Date(profile.lastFetchedAt).getTime())}
           </Badge>
         ) : null}

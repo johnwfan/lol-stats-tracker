@@ -1,4 +1,4 @@
-import { championIconUrl } from "@/lib/ddragon";
+import { championIconUrl, itemIconUrl } from "@/lib/ddragon";
 import { cn } from "@/lib/utils";
 import type { ParticipantDto } from "@/lib/riot/types";
 
@@ -15,73 +15,89 @@ function sumCS(p: ParticipantDto): number {
 interface MatchTeamTableProps {
   teamId: number;
   participants: ParticipantDto[];
+  ddVersion: string | null;
 }
 
-export default function MatchTeamTable({ teamId, participants }: MatchTeamTableProps) {
-  const stripe = teamId === 100 ? "border-l-win/60" : "border-l-loss/60";
+const COLS = "grid-cols-[1.7fr_0.8fr_0.5fr_0.6fr_0.6fr_0.5fr_1.3fr]";
+
+export default function MatchTeamTable({ teamId, participants, ddVersion }: MatchTeamTableProps) {
+  const teamWon = participants[0]?.win ?? false;
+  const teamKills = participants.reduce((s, p) => s + (p.kills || 0), 0);
 
   return (
-    <div
-      className={cn(
-        "rounded-2xl border border-border bg-card p-4 border-l-4 shadow-[0_1px_2px_0_var(--color-shadow)]",
-        stripe
-      )}
-    >
-      <div className="flex items-center justify-between">
-        <div className="text-lg font-semibold text-text-primary">{teamName(teamId)}</div>
-        <div className="text-xs text-text-muted">
-          {participants.reduce((s, p) => s + (p.kills || 0), 0)} /{" "}
-          {participants.reduce((s, p) => s + (p.deaths || 0), 0)} /{" "}
-          {participants.reduce((s, p) => s + (p.assists || 0), 0)}
-        </div>
+    <div className="overflow-hidden rounded-2xl border border-border bg-card">
+      <div
+        className={cn(
+          "flex items-center justify-between px-4 py-2.5",
+          teamWon ? "bg-win-soft" : "bg-loss-soft"
+        )}
+      >
+        <span className={cn("text-sm font-bold uppercase tracking-wide", teamWon ? "text-win" : "text-loss")}>
+          {teamName(teamId)} · {teamWon ? "Victory" : "Defeat"}
+        </span>
+        <span className="font-mono text-sm font-semibold text-text-secondary">{teamKills} kills</span>
       </div>
 
-      <div className="mt-3 overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-surface text-text-secondary">
-            <tr>
-              <th className="text-left font-medium py-2 px-2">Player</th>
-              <th className="text-left font-medium py-2 px-2">K/D/A</th>
-              <th className="text-right font-medium py-2 px-2">CS</th>
-              <th className="text-right font-medium py-2 px-2">Gold</th>
-              <th className="text-right font-medium py-2 px-2">Dmg</th>
-              <th className="text-right font-medium py-2 px-2">Vision</th>
-            </tr>
-          </thead>
-          <tbody>
-            {participants.map((p) => (
-              <tr key={p.puuid} className="border-t border-border">
-                <td className="py-2 px-2">
-                  <div className="flex items-center gap-3 min-w-[260px]">
-                    <div className="h-10 w-10 overflow-hidden rounded-xl border border-border bg-surface shrink-0">
-                      <img
-                        src={championIconUrl(p.championName) ?? undefined}
-                        alt={p.championName}
-                        className="h-full w-full object-cover"
-                        loading="lazy"
-                      />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="font-semibold truncate text-text-primary">{p.summonerName}</div>
-                      <div className="text-xs text-text-muted truncate">{p.championName}</div>
-                    </div>
-                  </div>
-                </td>
+      <div className="overflow-x-auto">
+        <div className={cn("grid min-w-[640px] gap-2 border-b border-border px-4 py-2 text-[11px] uppercase tracking-wide text-text-muted", COLS)}>
+          <span>Player</span>
+          <span>KDA</span>
+          <span className="text-right">CS</span>
+          <span className="text-right">Gold</span>
+          <span className="text-right">Dmg</span>
+          <span className="text-right">Vision</span>
+          <span>Items</span>
+        </div>
 
-                <td className="py-2 px-2 font-mono text-text-primary">
-                  {p.kills}/{p.deaths}/{p.assists}
-                </td>
+        {participants.map((p) => (
+          <div
+            key={p.puuid}
+            className={cn(
+              "grid min-w-[640px] items-center gap-2 border-b border-border px-4 py-2.5 text-sm last:border-b-0 hover:bg-overlay-hover",
+              COLS
+            )}
+          >
+            <div className="flex min-w-0 items-center gap-2.5">
+              <img
+                src={championIconUrl(p.championName) ?? undefined}
+                alt={p.championName}
+                className="h-10 w-10 shrink-0 rounded-lg border border-border object-cover"
+                loading="lazy"
+              />
+              <div className="min-w-0">
+                <div className="truncate font-medium text-text-primary">{p.summonerName}</div>
+                <div className="truncate text-xs text-text-muted">{p.championName}</div>
+              </div>
+            </div>
 
-                <td className="py-2 px-2 text-right text-text-primary">{sumCS(p)}</td>
-                <td className="py-2 px-2 text-right text-text-primary">{(p.goldEarned || 0).toLocaleString()}</td>
-                <td className="py-2 px-2 text-right text-text-primary">
-                  {(p.totalDamageDealtToChampions || 0).toLocaleString()}
-                </td>
-                <td className="py-2 px-2 text-right text-text-primary">{p.visionScore ?? 0}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            <div className="font-mono text-text-secondary">
+              {p.kills}<span className="text-text-muted">/</span>
+              <span className="text-loss">{p.deaths}</span><span className="text-text-muted">/</span>
+              {p.assists}
+            </div>
+
+            <div className="text-right font-mono text-text-secondary">{sumCS(p)}</div>
+            <div className="text-right font-mono text-text-secondary">
+              {((p.goldEarned || 0) / 1000).toFixed(1)}k
+            </div>
+            <div className="text-right font-mono text-text-secondary">
+              {((p.totalDamageDealtToChampions || 0) / 1000).toFixed(1)}k
+            </div>
+            <div className="text-right font-mono text-text-secondary">{p.visionScore ?? 0}</div>
+
+            <div className="flex gap-1">
+              {[p.item0, p.item1, p.item2, p.item3, p.item4, p.item5, p.item6].map((id, i) => (
+                <img
+                  key={i}
+                  src={itemIconUrl(id, ddVersion) ?? undefined}
+                  alt=""
+                  className={cn("h-6 w-6 rounded", !id && "bg-surface")}
+                  loading="lazy"
+                />
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

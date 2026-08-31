@@ -2,7 +2,7 @@ import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "reac
 import { cn } from "@/lib/utils";
 
 const VARIANTS = {
-  primary: "bg-accent text-white hover:bg-accent-hover",
+  primary: "bg-accent text-[color:var(--color-base)] hover:bg-accent-hover",
   ghost: "border border-border bg-transparent text-text-primary hover:bg-overlay-hover",
   outline: "border border-accent/30 text-accent hover:bg-accent/10",
 } as const;

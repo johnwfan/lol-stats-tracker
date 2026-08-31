@@ -19,6 +19,12 @@ export function championIconUrl(championName: string): string | null {
   return `https://ddragon.leagueoflegends.com/cdn/img/champion/tiles/${champ}_0.jpg`;
 }
 
+export function championSplashUrl(championName: string, skinNum = 0): string | null {
+  const champ = championToDdragonImageName(championName);
+  if (!champ) return null;
+  return `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${champ}_${skinNum}.jpg`;
+}
+
 let cachedVersion: string | null = null;
 export async function getLatestDdragonVersion(): Promise<string> {
   if (cachedVersion) return cachedVersion;

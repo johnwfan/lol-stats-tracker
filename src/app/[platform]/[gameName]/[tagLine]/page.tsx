@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import Card from "@/components/ui/Card";
 import ProfileCard from "@/components/ProfileCard";
 import RankedCard from "@/components/RankedCard";
 import MatchList from "@/components/MatchList";
@@ -190,22 +191,41 @@ export default function ProfilePage() {
     <main>
       <Navbar backHref="/" backLabel="Back to search" />
 
-      <div className="mx-auto max-w-4xl px-4 py-10 space-y-6">
+      <div className="mx-auto max-w-6xl px-4 py-10 space-y-6">
         {loading ? (
           <ProfileSkeleton />
         ) : notFound ? (
-          <div className="text-text-secondary">
-            No summoner found for {gameName}#{tagLine} on {platform.toUpperCase()}.
+          <div className="flex flex-col items-center gap-3 py-16 text-center">
+            <div className="text-text-primary font-medium">
+              Scuttle couldn&apos;t find {gameName}#{tagLine} on {platform.toUpperCase()}.
+            </div>
+            <div className="text-sm text-text-muted">Double-check the name, tag, and region and try again.</div>
           </div>
         ) : error ? (
           <ErrorBanner message={error} />
         ) : profile ? (
           <>
-            <ProfileCard profile={profile} platform={platform} ddVersion={ddVersion} />
-            {ranked && <RankedCard ranked={ranked} />}
-            {mastery.length > 0 && <ChampionMastery masteries={mastery} championMap={championMap} />}
-            {matches.length > 0 && <PerformanceSummary matches={matches} />}
-            {matches.length > 1 && <PerformanceTrend matches={matches} />}
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.1fr_1fr]">
+              <ProfileCard profile={profile} platform={platform} ddVersion={ddVersion} />
+              {ranked && <RankedCard ranked={ranked} />}
+            </div>
+
+            {(mastery.length > 0 || matches.length > 0) && (
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                {mastery.length > 0 && (
+                  <Card hover={false} className="p-4 md:p-5">
+                    <ChampionMastery masteries={mastery} championMap={championMap} />
+                  </Card>
+                )}
+                {matches.length > 0 && (
+                  <Card hover={false} className="p-4 md:p-5">
+                    <PerformanceSummary matches={matches} bare />
+                    {matches.length > 1 && <PerformanceTrend matches={matches} bare />}
+                  </Card>
+                )}
+              </div>
+            )}
+
             {matches.length > 0 && <MatchList matches={matches} ddVersion={ddVersion} />}
           </>
         ) : null}

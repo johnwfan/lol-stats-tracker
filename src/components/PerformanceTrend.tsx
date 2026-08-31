@@ -7,6 +7,7 @@ import type { MatchSummary } from "@/types/domain";
 
 interface PerformanceTrendProps {
   matches: MatchSummary[];
+  bare?: boolean;
 }
 
 interface ChartPoint {
@@ -41,7 +42,7 @@ function CustomTooltip({ active, label, payload }: CustomTooltipProps) {
   );
 }
 
-export default function PerformanceTrend({ matches }: PerformanceTrendProps) {
+export default function PerformanceTrend({ matches, bare = false }: PerformanceTrendProps) {
   if (!matches || matches.length === 0) return null;
 
   const data: ChartPoint[] = [...matches].reverse().map((m, i) => ({
@@ -50,10 +51,12 @@ export default function PerformanceTrend({ matches }: PerformanceTrendProps) {
     win: m.win,
   }));
 
-  return (
-    <Card hover={false} className="p-4 md:p-5">
-      <div className="mb-3 text-lg font-semibold text-text-primary">KDA Trend</div>
-      <ResponsiveContainer width="100%" height={180}>
+  const content = (
+    <>
+      <div className={cn("text-sm font-semibold uppercase tracking-wide text-text-secondary", bare && "mt-5")}>
+        KDA Trend
+      </div>
+      <ResponsiveContainer width="100%" height={160} className="mt-3">
         <BarChart data={data}>
           <XAxis dataKey="game" tick={{ fontSize: 11, fill: "var(--color-text-muted)" }} stroke="var(--color-border)" />
           <YAxis tick={{ fontSize: 11, fill: "var(--color-text-muted)" }} stroke="var(--color-border)" />
@@ -65,6 +68,14 @@ export default function PerformanceTrend({ matches }: PerformanceTrendProps) {
           </Bar>
         </BarChart>
       </ResponsiveContainer>
+    </>
+  );
+
+  if (bare) return content;
+
+  return (
+    <Card hover={false} className="p-4 md:p-5">
+      {content}
     </Card>
   );
 }
