@@ -8,11 +8,7 @@ A full-stack **League of Legends stats tracker** built with Next.js and TypeScri
 
 ## Screenshots
 
-<img width="1253" height="713" alt="Scuttle home page" src="https://github.com/user-attachments/assets/0f872dcb-b1e0-4902-9f4c-90c4bc178fae" />
 
-<img width="1037" height="850" alt="Scuttle player profile" src="https://github.com/user-attachments/assets/d912d0fe-2e62-48ee-82aa-4d0b92608e09" />
-
-<img width="1017" height="850" alt="Scuttle match analytics" src="https://github.com/user-attachments/assets/5b35b707-eaec-4681-877f-011f0172dcf9" />
 
 ---
 
