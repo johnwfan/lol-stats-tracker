@@ -40,3 +40,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ml pipeline
+ml/.env
+ml/.venv
+ml/__pycache__/
+ml/data/raw/
+ml/data/processed/
+ml/data/state/
+ml/*.log
