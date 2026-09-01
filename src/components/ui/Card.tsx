@@ -19,8 +19,7 @@ export default function Card({ children, className, hover = true, ...rest }: Car
       className={cn(
         "rounded-2xl border border-border bg-card",
         "shadow-[0_1px_2px_0_var(--color-shadow)]",
-        "transition hover:shadow-[0_10px_15px_-3px_var(--color-shadow)]",
-        hover && "hover:-translate-y-[1px]",
+        hover && "transition hover:-translate-y-[1px] hover:shadow-[0_10px_15px_-3px_var(--color-shadow)]",
         className
       )}
       {...rest}

@@ -42,7 +42,7 @@ export default function SearchChips() {
     "_id" in it ? it._id : `${it.platform}-${it.name}-${it.tag}`;
 
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-1">
+    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 pt-1">
       <span className="text-[11px] font-medium uppercase tracking-wide text-hp-ink/45">
         {hasHistory ? "Jump back in" : "Try a wandering summoner"}
       </span>
@@ -53,11 +53,9 @@ export default function SearchChips() {
           onClick={() =>
             router.push(`/${it.platform}/${encodeURIComponent(it.name)}/${encodeURIComponent(it.tag)}`)
           }
-          className="group inline-flex items-center gap-1 text-sm text-hp-ink/80 transition hover:text-hp-ink"
+          className="group inline-flex items-center gap-1 rounded-full border border-hp-border bg-white px-3 py-1.5 text-sm text-hp-ink/80 shadow-sm transition hover:border-hp-red/30 hover:text-hp-ink"
         >
-          <span className="underline decoration-hp-ink/25 underline-offset-4 transition group-hover:decoration-hp-red">
-            {it.name}#{it.tag}
-          </span>
+          {it.name}#{it.tag}
           <span className="transition group-hover:translate-x-0.5">↗</span>
         </button>
       ))}

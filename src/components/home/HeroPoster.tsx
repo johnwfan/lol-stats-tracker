@@ -21,20 +21,18 @@ export default function HeroPoster() {
 
   return (
     <section className="relative overflow-hidden">
-      {/* Champion art bleeding in from the right, masked white-to-image left-to-right. Desktop only — too cramped to read well on narrow viewports.
-          Note: the hero is proportionally much wider than the splash art (container ~2.4:1 vs image ~1.7:1), so a plain object-fit:cover <img> has
-          zero horizontal slack to reposition within — it always ends up scaled to exactly the container's width with nothing left to crop. Using an
-          oversized background-size instead deliberately zooms in, creating real slack so backgroundPosition can meaningfully shift the crop. */}
-      <div className="absolute inset-0 hidden lg:block">
+      {/* Champion art centered behind the hero at reduced opacity, fading to solid white toward the bottom so it blends into the section below on scroll. */}
+      <div className="absolute inset-0">
         {splash ? (
           <div
             aria-hidden="true"
-            className="h-full w-full"
+            className="absolute inset-0"
             style={{
               backgroundImage: `url(${splash})`,
-              backgroundSize: "150% auto",
-              backgroundPosition: "30% 10%",
+              backgroundSize: "cover",
+              backgroundPosition: "center 20%",
               backgroundRepeat: "no-repeat",
+              opacity: 0.7,
             }}
           />
         ) : null}
@@ -42,7 +40,7 @@ export default function HeroPoster() {
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(to right, #FFFFFF 0px, #FFFFFF 760px, rgba(255,255,255,0.75) 940px, rgba(255,255,255,0.15) 1100px, rgba(255,255,255,0) 1250px)",
+              "linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.4) 35%, rgba(255,255,255,0.85) 70%, #FFFFFF 100%)",
           }}
         />
       </div>
@@ -52,28 +50,28 @@ export default function HeroPoster() {
           variants={containerVariants}
           initial="hidden"
           animate="show"
-          className="py-12 lg:flex lg:min-h-[600px] lg:flex-col lg:justify-center lg:py-20"
+          className="flex flex-col items-center py-16 text-center lg:min-h-[600px] lg:justify-center lg:py-20"
         >
-          <div className="max-w-xl">
+          <div className="mx-auto w-full max-w-3xl">
             <motion.div
               variants={itemVariants}
-              className="text-[11px] font-medium uppercase tracking-[0.14em] text-hp-muted"
+              className="text-center text-[11px] font-medium uppercase tracking-[0.14em] text-hp-muted"
             >
               League of Legends Stats Tracker
             </motion.div>
 
             <motion.h1
               variants={itemVariants}
-              className="mt-3 font-display text-[clamp(2.75rem,13vw,4rem)] leading-[0.9] tracking-wide text-hp-ink sm:text-[76px] lg:text-[104px]"
+              className="mt-3 w-full text-center font-display text-4xl font-black leading-[1.1] text-hp-ink sm:text-5xl lg:text-8xl"
             >
               SCUTTLE.GG
             </motion.h1>
 
-            <motion.p variants={itemVariants} className="mt-4 max-w-md text-[1rem] text-hp-muted lg:text-lg">
-              Search any Riot ID for ranked stats, mastery, and match history.
+            <motion.p variants={itemVariants} className="mx-auto mt-6 max-w-md text-[1rem] text-hp-muted lg:text-lg">
+              Search any Riot ID and get ranked, mastery, and match history.
             </motion.p>
 
-            <motion.div variants={itemVariants} className="mt-7 max-w-lg space-y-3">
+            <motion.div variants={itemVariants} className="mx-auto mt-7 max-w-3xl space-y-3">
               <SearchForm variant="poster" />
               <SearchChips />
             </motion.div>

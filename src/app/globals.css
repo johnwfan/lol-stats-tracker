@@ -8,9 +8,9 @@
   --color-border: #E4E7ED;
   --color-border-strong: #CDD3DE;
 
-  --color-text-primary: #00043A;
-  --color-text-secondary: #4C5876;
-  --color-text-muted: #7C87A0;
+  --color-text-primary: #000000;
+  --color-text-secondary: #404040;
+  --color-text-muted: #737373;
 
   --color-accent: #FF002B;
   --color-accent-hover: #C00021;
@@ -32,18 +32,17 @@
   --color-loss-soft: rgba(255, 0, 43, 0.10);
   --color-error: #FF002B;
 
-  --color-overlay-hover: rgba(0, 4, 58, 0.04);
-  --color-shadow: rgba(0, 4, 58, 0.14);
+  --color-overlay-hover: rgba(0, 0, 0, 0.04);
+  --color-shadow: rgba(0, 0, 0, 0.14);
 
   /* --- Homepage-only palette (namespaced hp-*, additive — dashboard tokens above are untouched) --- */
   --color-hp-bg: #FFFFFF;
-  --color-hp-ink: #00043A;
-  --color-hp-navy: #002962;
-  --color-hp-navy-light: #407BA7;
+  --color-hp-ink: #0A0A0A;
+  --color-hp-navy: #262626;
   --color-hp-red: #FF002B;
   --color-hp-red-deep: #C00021;
-  --color-hp-muted: #5C6B85;
-  --color-hp-border: rgba(0, 4, 58, 0.12);
+  --color-hp-muted: #595959;
+  --color-hp-border: rgba(0, 0, 0, 0.10);
   --color-hp-win: #16A34A;
 }
 
@@ -74,13 +73,12 @@
   --color-overlay-hover: var(--color-overlay-hover);
   --color-shadow: var(--color-shadow);
   --font-sans: var(--font-inter);
-  --font-display: var(--font-bebas);
+  --font-display: var(--font-inter);
   --font-mono: var(--font-jetbrains-mono);
 
   --color-hp-bg: var(--color-hp-bg);
   --color-hp-ink: var(--color-hp-ink);
   --color-hp-navy: var(--color-hp-navy);
-  --color-hp-navy-light: var(--color-hp-navy-light);
   --color-hp-red: var(--color-hp-red);
   --color-hp-red-deep: var(--color-hp-red-deep);
   --color-hp-muted: var(--color-hp-muted);

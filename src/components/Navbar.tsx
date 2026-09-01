@@ -11,7 +11,7 @@ interface NavbarProps {
 export default function Navbar({ backHref, backLabel = "Back" }: NavbarProps) {
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-surface/90 backdrop-blur-md">
-      <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
+      <div className="flex w-full items-center justify-between gap-3 px-4 py-3 md:px-6">
         <div className="flex items-center gap-2">
           {backHref ? (
             <Button href={backHref} variant="ghost" size="sm" aria-label={backLabel} title={backLabel} className="px-2.5">

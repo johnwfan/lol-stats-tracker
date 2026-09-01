@@ -10,10 +10,10 @@ function kda(k: number, d: number, a: number): string {
   return ((k + a) / Math.max(d, 1)).toFixed(2);
 }
 
-function SectionLabel({ n, label }: { n: string; label: string }) {
+function SectionLabel({ label }: { label: string }) {
   return (
     <div className="font-mono text-xs font-medium uppercase tracking-[0.14em] text-hp-red">
-      {n} / {label}
+      {label}
     </div>
   );
 }
@@ -23,11 +23,11 @@ function RankedGlance() {
   const winRate = Math.round((entry.wins / Math.max(entry.wins + entry.losses, 1)) * 100);
 
   return (
-    <div className="rounded-2xl border border-hp-navy bg-hp-ink p-6 shadow-[0_20px_40px_rgba(0,4,58,0.14)] lg:p-7">
-      <SectionLabel n="01" label="Ranked" />
-      <h3 className="mt-2 text-2xl font-semibold text-white lg:text-3xl">where am I at?</h3>
+    <div className="rounded-2xl border border-hp-navy bg-hp-ink p-6 shadow-[0_20px_40px_rgba(0,0,0,0.14)] lg:p-7">
+      <SectionLabel label="Ranked" />
+      <h3 className="mt-2 text-2xl font-bold text-white lg:text-3xl">where am I at?</h3>
 
-      <div className="mt-6 font-display text-3xl tracking-wide text-hp-red lg:text-4xl">
+      <div className="mt-6 font-display text-3xl font-bold tracking-tight text-hp-red lg:text-4xl">
         {entry.tier} {entry.rank}
       </div>
       <div className="mt-1 font-mono text-sm text-white/60">{entry.leaguePoints} LP</div>
@@ -55,10 +55,10 @@ function RankedGlance() {
 
 function LastTen({ ddVersion }: { ddVersion: string | null }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-hp-navy bg-hp-ink shadow-[0_20px_40px_rgba(0,4,58,0.14)]">
+    <div className="overflow-hidden rounded-2xl border border-hp-navy bg-hp-ink shadow-[0_20px_40px_rgba(0,0,0,0.14)]">
       <div className="p-6 pb-3 lg:p-7 lg:pb-3">
-        <SectionLabel n="02" label="Matches" />
-        <h3 className="mt-2 text-2xl font-semibold text-white lg:text-3xl">
+        <SectionLabel label="Matches" />
+        <h3 className="mt-2 text-2xl font-bold text-white lg:text-3xl">
           the good, the bad, and the 0/8 game.
         </h3>
       </div>
@@ -126,9 +126,9 @@ function ComfortPicks() {
 
   return (
     <div className="max-w-md">
-      <SectionLabel n="03" label="Mastery" />
-      <h3 className="mt-2 text-2xl font-semibold text-hp-ink lg:text-3xl">
-        we know who you really play.
+      <SectionLabel label="Mastery" />
+      <h3 className="mt-2 text-2xl font-bold text-hp-ink lg:text-3xl">
+        view champion mastery.
       </h3>
 
       <div className="mt-6 flex items-end pl-2">
@@ -138,7 +138,7 @@ function ComfortPicks() {
           return (
             <div
               key={m.championId}
-              className={`relative ${i === 0 ? "" : "-ml-6"} h-24 w-24 shrink-0 overflow-hidden rounded-2xl border-2 border-white shadow-[0_14px_30px_rgba(0,4,58,0.28)] transition hover:z-20 hover:-translate-y-2 lg:h-28 lg:w-28 ${rotations[i % rotations.length]}`}
+              className={`relative ${i === 0 ? "" : "-ml-6"} h-24 w-24 shrink-0 overflow-hidden rounded-2xl border-2 border-white shadow-[0_14px_30px_rgba(0,0,0,0.28)] transition hover:z-20 hover:-translate-y-2 lg:h-28 lg:w-28 ${rotations[i % rotations.length]}`}
               style={{ zIndex: i + 1 }}
             >
               {icon ? <img src={icon} alt={champ?.name} className="h-full w-full object-cover" loading="lazy" /> : null}
@@ -163,10 +163,10 @@ export default function ProductShowcase() {
   return (
     <section className="mx-auto w-full max-w-[1280px] px-4 py-20 md:px-6 lg:py-28">
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-10">
-        <h2 className="font-display text-4xl leading-[0.95] tracking-wide text-hp-ink sm:text-5xl lg:text-6xl">
-          ONE SEARCH.
+        <h2 className="font-display text-4xl font-black leading-[0.95] tracking-tight text-hp-ink sm:text-5xl lg:text-6xl">
+          TYPE A NAME.
           <br />
-          THE WHOLE STORY.
+          SEE EVERYTHING.
         </h2>
         <p className="max-w-xs text-sm text-hp-muted lg:text-[1rem]">
           scuttle.gg turns Riot&apos;s raw match data into something you can actually read.

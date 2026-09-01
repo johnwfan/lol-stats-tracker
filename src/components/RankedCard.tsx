@@ -78,11 +78,7 @@ export default function RankedCard({ ranked }: RankedCardProps) {
                 <motion.div
                   key={e.queueType}
                   variants={itemVariants}
-                  className={cn(
-                    "rounded-2xl border bg-surface p-4",
-                    "transition hover:bg-overlay-hover hover:shadow-[0_10px_15px_-3px_var(--color-shadow)]",
-                    accent
-                  )}
+                  className={cn("rounded-2xl border bg-surface p-4", accent)}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>

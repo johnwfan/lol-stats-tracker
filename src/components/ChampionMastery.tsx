@@ -25,14 +25,14 @@ export default function ChampionMastery({ masteries, championMap }: ChampionMast
           return (
             <div
               key={m.championId}
-              className="group relative overflow-hidden rounded-xl bg-surface"
+              className="relative overflow-hidden rounded-xl bg-surface"
               title={champ?.name ? `Last played ${formatRelativeTime(m.lastPlayTime)}` : undefined}
             >
               {icon ? (
                 <img
                   src={icon}
                   alt={champ?.name || ""}
-                  className="aspect-square w-full object-cover transition duration-300 group-hover:scale-105"
+                  className="aspect-square w-full object-cover"
                   loading="lazy"
                 />
               ) : (

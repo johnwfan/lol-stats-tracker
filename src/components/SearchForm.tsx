@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { AnimatePresence } from "framer-motion";
-import { Search } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown, Search } from "lucide-react";
 import Select from "@/components/ui/Select";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
@@ -34,6 +34,89 @@ function getDefaultRegion(): string {
   } catch {
     return "na1";
   }
+}
+
+interface RegionDropdownProps {
+  value: string;
+  onChange: (value: string) => void;
+}
+
+function RegionDropdown({ value, onChange }: RegionDropdownProps) {
+  const [open, setOpen] = useState(false);
+  const [coords, setCoords] = useState<{ top: number; left: number; width: number } | null>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const selected = REGIONS.find((r) => r.value === value);
+
+  useEffect(() => {
+    function onMouseDown(e: MouseEvent) {
+      const target = e.target as Node;
+      if (btnRef.current?.contains(target)) return;
+      if (panelRef.current?.contains(target)) return;
+      setOpen(false);
+    }
+    document.addEventListener("mousedown", onMouseDown);
+    return () => document.removeEventListener("mousedown", onMouseDown);
+  }, []);
+
+  function toggleOpen() {
+    if (!open && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      setCoords({ top: rect.bottom + 8, left: rect.left, width: Math.max(rect.width, 208) });
+    }
+    setOpen((o) => !o);
+  }
+
+  return (
+    // Panel renders position:fixed (see below) rather than absolute-inside-this-box, since the
+    // search bar wraps everything in overflow-hidden to clip the submit button to its rounded
+    // corners — an absolutely-positioned descendant popup would get clipped by that too.
+    <div className="relative h-full">
+      <label className="pointer-events-none absolute left-4 top-2 text-[10px] font-semibold uppercase tracking-wider text-white/40">
+        Region
+      </label>
+      <button
+        ref={btnRef}
+        type="button"
+        onClick={toggleOpen}
+        className="flex h-full w-full items-center justify-between gap-1.5 px-4 pb-3 pt-6 text-left text-[1rem] text-white outline-none"
+      >
+        <span className="truncate">{selected?.label ?? value}</span>
+        <ChevronDown className={cn("h-4 w-4 shrink-0 text-white/40 transition-transform", open && "rotate-180")} />
+      </button>
+
+      <AnimatePresence>
+        {open && coords ? (
+          <motion.div
+            ref={panelRef}
+            initial={{ opacity: 0, y: -4, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -4, scale: 0.98 }}
+            transition={{ duration: 0.15 }}
+            style={{ position: "fixed", top: coords.top, left: coords.left, width: coords.width }}
+            className="z-50 max-h-64 overflow-y-auto rounded-xl border border-hp-navy bg-hp-ink p-1.5 shadow-[0_16px_40px_rgba(0,0,0,0.35)]"
+          >
+            {REGIONS.map((r) => (
+              <button
+                key={r.value}
+                type="button"
+                onClick={() => {
+                  onChange(r.value);
+                  setOpen(false);
+                }}
+                className={cn(
+                  "block w-full rounded-lg px-3 py-2 text-left text-sm transition hover:bg-white/5",
+                  r.value === value ? "text-hp-red" : "text-white/80"
+                )}
+              >
+                {r.label}
+              </button>
+            ))}
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+    </div>
+  );
 }
 
 interface SearchFormProps {
@@ -98,55 +181,71 @@ export default function SearchForm({ variant = "default" }: SearchFormProps) {
             className={cn(
               "flex flex-col overflow-hidden md:flex-row md:items-stretch",
               isPoster
-                ? "rounded-2xl border border-hp-navy bg-hp-ink shadow-[0_12px_32px_rgba(0,4,58,0.16)] transition focus-within:border-hp-red/40 focus-within:ring-2 focus-within:ring-hp-red/30"
+                ? "rounded-2xl border border-hp-navy bg-hp-ink shadow-[0_12px_32px_rgba(0,0,0,0.18)] transition focus-within:border-hp-red/40 focus-within:ring-2 focus-within:ring-hp-red/30"
                 : "rounded-2xl border border-border bg-card transition focus-within:border-accent/50 focus-within:ring-2 focus-within:ring-accent/20"
             )}
           >
             <div
               className={cn(
-                "border-b shrink-0 md:w-[150px] md:border-b-0 md:border-r",
-                isPoster ? "border-hp-navy" : "border-border"
+                "border-b shrink-0 md:border-b-0 md:border-r",
+                isPoster ? "border-hp-navy md:w-[180px]" : "border-border md:w-[150px]"
               )}
             >
-              <label className="sr-only">Region</label>
-              <Select
-                bare
-                value={platform}
-                onChange={(e) => setPlatform(e.target.value)}
-                options={REGIONS}
-                className={isPoster ? "py-4 pl-4 pr-2 text-[1rem] text-white" : undefined}
-              />
+              {isPoster ? (
+                <RegionDropdown value={platform} onChange={setPlatform} />
+              ) : (
+                <>
+                  <label className="sr-only">Region</label>
+                  <Select bare value={platform} onChange={(e) => setPlatform(e.target.value)} options={REGIONS} />
+                </>
+              )}
             </div>
 
             <div
               className={cn(
-                "min-w-0 flex-1 border-b md:border-b-0 md:border-r",
+                "relative min-w-0 flex-1 border-b md:border-b-0 md:border-r",
                 isPoster ? "border-hp-navy" : "border-border"
               )}
             >
-              <label className="sr-only">Riot Name</label>
+              <label
+                className={
+                  isPoster
+                    ? "pointer-events-none absolute left-4 top-2 text-[10px] font-semibold uppercase tracking-wider text-white/40"
+                    : "sr-only"
+                }
+              >
+                Player Name
+              </label>
               <Input
                 bare
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Riot name"
-                className={isPoster ? "py-4 px-4 text-[1rem] text-white placeholder:text-white/35" : undefined}
+                placeholder={isPoster ? "e.g. Tyler1" : "Riot name"}
+                className={isPoster ? "px-4 pb-3 pt-6 text-[1rem] text-white placeholder:text-white/30" : undefined}
               />
             </div>
 
             <div
               className={cn(
-                "border-b shrink-0 md:w-[100px] md:border-b-0 md:border-r",
-                isPoster ? "border-hp-navy" : "border-border"
+                "relative border-b shrink-0 md:border-b-0 md:border-r",
+                isPoster ? "border-hp-navy md:w-[120px]" : "border-border md:w-[100px]"
               )}
             >
-              <label className="sr-only">Tag</label>
+              <label
+                className={
+                  isPoster
+                    ? "pointer-events-none absolute left-4 top-2 text-[10px] font-semibold uppercase tracking-wider text-white/40"
+                    : "sr-only"
+                }
+              >
+                Tag
+              </label>
               <Input
                 bare
                 value={tag}
                 onChange={(e) => setTag(e.target.value)}
-                placeholder="Tag"
-                className={isPoster ? "py-4 px-4 text-[1rem] text-white placeholder:text-white/35" : undefined}
+                placeholder={isPoster ? "e.g. NA1" : "Tag"}
+                className={isPoster ? "px-4 pb-3 pt-6 text-[1rem] text-white placeholder:text-white/30" : undefined}
               />
             </div>
 
@@ -154,7 +253,7 @@ export default function SearchForm({ variant = "default" }: SearchFormProps) {
               type="submit"
               className={cn(
                 "shrink-0 rounded-none px-6 py-2",
-                isPoster && "bg-hp-red font-semibold text-white hover:bg-hp-red-deep"
+                isPoster && "px-8 bg-hp-red font-semibold text-white hover:bg-hp-red-deep"
               )}
             >
               <Search className="h-4 w-4" />

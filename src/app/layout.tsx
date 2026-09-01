@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Inter, JetBrains_Mono, Bebas_Neue } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
 import Footer from "@/components/Footer";
@@ -15,12 +15,6 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
-const bebasNeue = Bebas_Neue({
-  variable: "--font-bebas",
-  subsets: ["latin"],
-  weight: "400",
-});
-
 export const metadata: Metadata = {
   title: "scuttle.gg — League of Legends Stats Tracker",
   description:
@@ -31,7 +25,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} ${bebasNeue.variable} bg-dot-grid font-sans min-h-screen text-text-primary antialiased flex flex-col`}
+        className={`${inter.variable} ${jetbrainsMono.variable} bg-dot-grid font-sans min-h-screen text-text-primary antialiased flex flex-col`}
       >
         <Providers>
           {children}
