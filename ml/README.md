@@ -13,6 +13,13 @@ preprocess.py -> data/processed/dataset.parquet     (one row per match)
 validate.py   -> checks the processed dataset for integrity/leakage
 train.py      -> artifacts/baseline_model.joblib, test_predictions.parquet, training_config.json
 evaluate.py   -> artifacts/metrics.json, calibration_plot.png
+
+# Day 3: regularization tuning + rare-category handling (adds day3_-prefixed
+# artifacts alongside Day 2's, never overwriting them)
+analyze_features.py -> artifacts/day3_feature_frequency_analysis.json
+tune.py             -> artifacts/day3_tuning_results.json
+train_day3.py       -> artifacts/day3_experiment_{b,c}_model.joblib, day3_training_config.json
+evaluate_day3.py     -> artifacts/day3_metrics.json, day3_calibration_plot.png
 ```
 
 ## Role assignment
@@ -145,3 +152,25 @@ represent champion synergies or counters.
 
 All of `artifacts/` is gitignored (regenerable by rerunning `train.py` then
 `evaluate.py`), same convention as `data/raw|processed|state/`.
+
+## Day 3: regularization tuning and rare-category handling
+
+Day 2's logistic regression overfit — ~900 one-hot features on ~1,300
+training rows, with extreme coefficients traced to champion-role picks seen
+fewer than 10 times. Day 3 addresses this three ways: more training data,
+regularization strength tuning (`C`), and grouping rare categories via
+`OneHotEncoder(min_frequency=...)`.
+
+```bash
+python analyze_features.py   # quantifies how severe the sparsity problem is
+python tune.py                # grid search over C and min_frequency, CV within training patches only
+python train_day3.py          # fits the two winning configs on the full training set
+python evaluate_day3.py       # compares baseline vs Day 2 vs both Day 3 experiments
+```
+
+`tune.py` never touches the held-out test patch — hyperparameters are
+selected purely via `StratifiedKFold` cross-validation inside the training
+patches, scored primarily by log loss (matching the product's priority on
+probability quality over raw accuracy). All Day 3 artifacts are written
+with a `day3_` prefix so Day 2's artifacts are never overwritten — both
+remain on disk for direct comparison.

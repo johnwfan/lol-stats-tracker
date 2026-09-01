@@ -86,7 +86,7 @@ def split_by_patch(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     return train_df, test_df
 
 
-def build_preprocessor() -> ColumnTransformer:
+def build_preprocessor(min_frequency: int | None = None) -> ColumnTransformer:
     """One-hot encodes all 10 champion-role columns. OneHotEncoder fits an
     independent vocabulary per input column regardless of how many columns
     are passed to a single instance, so this is equivalent to (not a
@@ -99,9 +99,18 @@ def build_preprocessor() -> ColumnTransformer:
     always jungle in training showing up mid in test) -- without this,
     transforming the test set would raise instead of encoding those cells
     as all-zero.
+
+    min_frequency (Day 3): champion-role categories occurring fewer than
+    this many times in the fitted (training) data are grouped into a
+    single "infrequent" bucket per column instead of getting their own
+    feature. None (the default, and Day 2's behavior) disables this.
     """
     return ColumnTransformer(
-        transformers=[("onehot", OneHotEncoder(handle_unknown="ignore", sparse_output=True), CHAMPION_COLUMNS)]
+        transformers=[(
+            "onehot",
+            OneHotEncoder(handle_unknown="ignore", sparse_output=True, min_frequency=min_frequency),
+            CHAMPION_COLUMNS,
+        )]
     )
 
 
@@ -116,18 +125,20 @@ def build_baseline_pipeline() -> Pipeline:
     ])
 
 
-def build_logreg_pipeline() -> Pipeline:
-    """Logistic regression over ~930 sparse one-hot features fit on ~1,276
-    training rows -- a thin ratio that risks overfitting. `penalty` is left
-    at its default (L2 regularization, which is what keeps this workable) --
-    sklearn 1.8+ deprecated passing penalty="l2" explicitly in favor of just
-    omitting it. class_weight is left at default since the classes are
-    already near-balanced. max_iter is raised from sklearn's default of 100
-    because high-dimensional sparse fits sometimes need more iterations to
-    converge cleanly."""
+def build_logreg_pipeline(C: float = 1.0, min_frequency: int | None = None) -> Pipeline:
+    """Logistic regression over sparse one-hot features. `penalty` is left
+    at its default (L2 regularization) -- sklearn 1.8+ deprecated passing
+    penalty="l2" explicitly in favor of just omitting it. class_weight is
+    left at default since the classes are near-balanced. max_iter is raised
+    from sklearn's default of 100 because high-dimensional sparse fits
+    sometimes need more iterations to converge cleanly.
+
+    C (Day 3): inverse regularization strength -- sklearn's default is 1.0,
+    which is what Day 2 used implicitly. Smaller C = stronger regularization.
+    min_frequency: passed through to build_preprocessor(); see there."""
     return Pipeline([
-        ("preprocessing", build_preprocessor()),
-        ("classifier", LogisticRegression(solver="lbfgs", max_iter=1000, random_state=RANDOM_STATE)),
+        ("preprocessing", build_preprocessor(min_frequency=min_frequency)),
+        ("classifier", LogisticRegression(C=C, solver="lbfgs", max_iter=1000, random_state=RANDOM_STATE)),
     ])
 
 

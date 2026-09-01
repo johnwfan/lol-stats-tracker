@@ -50,3 +50,4 @@ ml/data/processed/
 ml/data/state/
 ml/artifacts/
 ml/*.log
+ml/catboost_info/

@@ -45,13 +45,13 @@ PLATFORM = "na1"
 QUEUE_SOLO = 420
 MATCH_IDS_PER_SEED = 100  # max allowed per request by Match-V5
 
-# Master (unlike Challenger/GM) can return 10k+ players on some regions, and
-# fetching match ids for every one of them would massively overshoot a Day 1
-# pilot. Cap how many seeds we draw per tier and stop once we've fetched
-# enough matches overall -- both are deliberately small for a first pass and
-# easy to raise later once the pipeline is trusted.
-SEED_LIMIT_PER_TIER = 50
-TARGET_MATCH_COUNT = 1500
+# Day 1 kept these deliberately small for a first pilot. Day 3 raises both:
+# SEED_LIMIT_PER_TIER is now effectively uncapped (no apex tier exceeds ~10k
+# players) since the real constraint at scale is rate-limited runtime, not
+# seed exhaustion -- see ml/README.md for the reasoning. Resumable, so this
+# can be raised further later toward a 20-50k longer-term target.
+SEED_LIMIT_PER_TIER = 5000
+TARGET_MATCH_COUNT = 15000
 
 
 def load_seeds_queried() -> set[str]:
