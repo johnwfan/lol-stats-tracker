@@ -198,6 +198,8 @@ MONGODB_URI=your_mongodb_connection_string
 
 UPSTASH_REDIS_REST_URL=your_upstash_redis_url
 UPSTASH_REDIS_REST_TOKEN=your_upstash_redis_token
+
+ML_API_URL=http://localhost:8001
 ```
 
 GitHub authentication also requires GitHub OAuth credentials and a NextAuth secret.
@@ -210,7 +212,19 @@ AUTH_GITHUB_ID=your_github_client_id
 AUTH_GITHUB_SECRET=your_github_client_secret
 ```
 
-### 4. Start the development server
+### 4. Start the ML inference service (for Draft Intelligence)
+
+Draft strength analysis is served by a separate small Python service; see `ml-service/README.md` for full details.
+
+```bash
+cd ml-service
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8001
+```
+
+### 5. Start the development server
 
 ```bash
 npm run dev
@@ -237,6 +251,8 @@ src/
 │   │   │   ├── matches/
 │   │   │   ├── profile/
 │   │   │   └── ranked/
+│   │   ├── ml/
+│   │   │   └── analyze-draft/
 │   │   └── recent-searches/
 │   ├── match/
 │   ├── settings/
@@ -247,6 +263,10 @@ src/
 │
 ├── lib/
 │   ├── cache/
+│   ├── ml/
+│   │   ├── mlClient.ts
+│   │   ├── mlFetch.ts
+│   │   └── types.ts
 │   └── riot/
 │       ├── regions.ts
 │       ├── riotClient.ts
@@ -255,6 +275,9 @@ src/
 │
 ├── models/
 └── types/
+
+ml/            # research pipeline (data collection, training, evaluation) -- see ml/README.md
+ml-service/    # Draft Intelligence inference API -- see ml-service/README.md
 ```
 
 ---

@@ -1,0 +1,62 @@
+{
+  "model_version": "draft-logreg-v1",
+  "training_date": "2026-09-01",
+  "config": {
+    "C": 0.01,
+    "min_frequency": 50,
+    "random_state": 42,
+    "solver": "lbfgs",
+    "max_iter": 1000
+  },
+  "dataset": {
+    "n_rows": 14826,
+    "patches": [
+      "16.10",
+      "16.11",
+      "16.12",
+      "16.13",
+      "16.14",
+      "16.15",
+      "16.16",
+      "16.17"
+    ],
+    "reference_population": "Ranked Solo/Duo (queue 420) matches, NA1 platform, Challenger/Grandmaster/Master players only (apex tier -- see Day 5 research notes on population scope; Gold/Platinum/Emerald/Diamond cohorts were collected for comparison research only and are not part of this model's training data)"
+  },
+  "feature_columns": [
+    "blue_top",
+    "blue_jungle",
+    "blue_mid",
+    "blue_adc",
+    "blue_support",
+    "red_top",
+    "red_jungle",
+    "red_mid",
+    "red_adc",
+    "red_support"
+  ],
+  "n_onehot_features": 541,
+  "sklearn_version": "1.9.0",
+  "evaluation_summary": {
+    "method": "rolling forward-patch evaluation (train on all patches before N, test on N)",
+    "day3_5_logistic_rolling": {
+      "mean_roc_auc": 0.5117,
+      "std_roc_auc": 0.0229,
+      "mean_log_loss": 0.6907,
+      "n_folds": 5
+    },
+    "day4_comparison_vs_catboost": {
+      "logistic": {
+        "mean_roc_auc": 0.5117,
+        "mean_log_loss": 0.6907,
+        "mean_brier": 0.2488
+      },
+      "catboost": {
+        "mean_roc_auc": 0.5172,
+        "mean_log_loss": 0.6905,
+        "mean_brier": 0.2487
+      },
+      "conclusion": "statistically indistinguishable on log loss/Brier/accuracy; CatBoost's ROC-AUC edge was driven by one fold (2/5 wins) and showed measurable overfitting (~0.10 train-test ROC-AUC gap). Logistic regression selected: simpler, no less effective, no evidence CatBoost is worth the complexity."
+    }
+  },
+  "selection_rationale": "Selected over CatBoost (Day 4): statistically indistinguishable on log loss/Brier/accuracy, CatBoost's ROC-AUC edge was unstable (driven by one of five rolling folds) and showed real overfitting. Logistic regression is simpler, more interpretable, and the product no longer claims precise win probabilities -- there is no evidence justifying the added complexity."
+}

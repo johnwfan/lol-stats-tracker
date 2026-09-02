@@ -52,3 +52,9 @@ ml/data/state/
 ml/artifacts/
 ml/*.log
 ml/catboost_info/
+
+# ml-service (inference API) -- model_registry/*.joblib, reference_distribution.json,
+# and champion_vocabulary.json ARE committed: they're the production model the
+# service needs to run, not regenerable research output like ml/artifacts/.
+ml-service/.venv
+ml-service/__pycache__/
