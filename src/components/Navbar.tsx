@@ -27,13 +27,14 @@ export default function Navbar({ backHref, backLabel = "Back" }: NavbarProps) {
         <div className="flex items-center gap-2">
           <Button
             href="/draft"
-            variant="ghost"
+            variant="outline"
             size="sm"
             aria-label="Draft Intelligence"
             title="Draft Intelligence"
-            className="border-border-strong px-2.5"
+            className="gap-1.5 px-3"
           >
             <Swords className="h-4 w-4" />
+            <span className="hidden sm:inline">Draft Intelligence</span>
           </Button>
           <Button
             href="/settings"

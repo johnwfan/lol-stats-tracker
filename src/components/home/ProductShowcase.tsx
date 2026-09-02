@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { championIconUrl, itemIconUrl, getLatestDdragonVersion } from "@/lib/ddragon";
 import { queueName } from "@/lib/queues";
 import { formatDuration } from "@/lib/utils";
@@ -153,6 +155,39 @@ function ComfortPicks() {
   );
 }
 
+function DraftIntelTeaser() {
+  return (
+    <Link
+      href="/draft"
+      className="group block overflow-hidden rounded-2xl border border-hp-navy bg-hp-ink p-8 shadow-[0_20px_40px_rgba(0,0,0,0.14)] transition hover:-translate-y-1 lg:p-12"
+    >
+      <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+        <div className="max-w-xl">
+          <SectionLabel label="Draft Intelligence · Experimental" />
+          <h3 className="mt-2 text-3xl font-bold text-white lg:text-4xl">
+            how strong is this draft, historically?
+          </h3>
+          <p className="mt-3 text-sm text-white/60 lg:text-[1rem]">
+            Build a 10-champion draft and see how it compares to a model trained on real ranked matches
+            &mdash; a historical read on the pick, not a win predictor.
+          </p>
+          <div className="mt-6 inline-flex items-center gap-2 rounded-xl bg-hp-red px-5 py-3 text-sm font-semibold text-white transition group-hover:gap-3 group-hover:bg-hp-red-deep">
+            Explore Draft Intelligence
+            <ArrowRight className="h-4 w-4" />
+          </div>
+        </div>
+
+        <div className="shrink-0 rounded-xl border border-white/10 bg-white/5 p-5 lg:w-72">
+          <div className="font-mono text-xs uppercase tracking-[0.14em] text-white/50">Sample result</div>
+          <div className="mt-2 font-display text-3xl font-bold text-hp-red">72nd percentile</div>
+          <div className="mt-1 text-sm text-white/60">Slight Blue Edge</div>
+          <div className="mt-1 text-xs text-white/40">Model draft score &mdash; demo data</div>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
 export default function ProductShowcase() {
   const [ddVersion, setDdVersion] = useState<string | null>(null);
 
@@ -184,6 +219,10 @@ export default function ProductShowcase() {
 
       <div className="mt-14 lg:mt-16">
         <ComfortPicks />
+      </div>
+
+      <div className="mt-14 lg:mt-16">
+        <DraftIntelTeaser />
       </div>
     </section>
   );
