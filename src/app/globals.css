@@ -32,6 +32,13 @@
   --color-loss-soft: rgba(255, 0, 43, 0.10);
   --color-error: #FF002B;
 
+  /* Blue-side / red-side team identity (Draft Intelligence) -- distinct from
+     win/loss, which mean victory/defeat, not team side. */
+  --color-blue-side: #2563EB;
+  --color-blue-side-soft: rgba(37, 99, 235, 0.10);
+  --color-red-side: #FF002B;
+  --color-red-side-soft: rgba(255, 0, 43, 0.10);
+
   --color-overlay-hover: rgba(0, 0, 0, 0.04);
   --color-shadow: rgba(0, 0, 0, 0.14);
 
@@ -70,6 +77,10 @@
   --color-loss: var(--color-loss);
   --color-loss-soft: var(--color-loss-soft);
   --color-error: var(--color-error);
+  --color-blue-side: var(--color-blue-side);
+  --color-blue-side-soft: var(--color-blue-side-soft);
+  --color-red-side: var(--color-red-side);
+  --color-red-side-soft: var(--color-red-side-soft);
   --color-overlay-hover: var(--color-overlay-hover);
   --color-shadow: var(--color-shadow);
   --font-sans: var(--font-inter);

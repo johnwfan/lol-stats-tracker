@@ -10,6 +10,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Python ML directories -- not part of the Next.js app, and their
+    // .venv/ subfolders bundle huge vendored JS (Jupyter widgets, plotly)
+    // that isn't meant to be linted here.
+    "ml/**",
+    "ml-service/**",
   ]),
 ]);
 

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, Settings } from "lucide-react";
+import { ArrowLeft, Settings, Swords } from "lucide-react";
 import AuthButton from "@/components/AuthButton";
 import Button from "@/components/ui/Button";
 
@@ -25,6 +25,16 @@ export default function Navbar({ backHref, backLabel = "Back" }: NavbarProps) {
         </div>
 
         <div className="flex items-center gap-2">
+          <Button
+            href="/draft"
+            variant="ghost"
+            size="sm"
+            aria-label="Draft Intelligence"
+            title="Draft Intelligence"
+            className="border-border-strong px-2.5"
+          >
+            <Swords className="h-4 w-4" />
+          </Button>
           <Button
             href="/settings"
             variant="ghost"

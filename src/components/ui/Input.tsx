@@ -1,13 +1,15 @@
-import type { InputHTMLAttributes } from "react";
+import type { InputHTMLAttributes, Ref } from "react";
 import { cn } from "@/lib/utils";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   bare?: boolean;
+  ref?: Ref<HTMLInputElement>;
 }
 
-export default function Input({ className, bare, ...rest }: InputProps) {
+export default function Input({ className, bare, ref, ...rest }: InputProps) {
   return (
     <input
+      ref={ref}
       className={cn(
         bare
           ? "w-full bg-transparent px-3 py-2 text-text-primary placeholder:text-text-muted outline-none"
