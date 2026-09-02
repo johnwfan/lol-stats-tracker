@@ -15,7 +15,11 @@ export async function mlFetch<T = unknown>(path: string, body: unknown): Promise
   const baseUrl = process.env.ML_API_URL;
   if (!baseUrl) throw new Error("Missing ML_API_URL in .env.local");
 
-  const res = await fetch(`${baseUrl}${path}`, {
+  // Tolerate a trailing slash in the configured URL (e.g. a deployed host's
+  // env var set as "https://host.com/") -- otherwise it doubles up with
+  // `path`'s leading slash into "//analyze-draft", which the ML service's
+  // router 404s on instead of matching to "/analyze-draft".
+  const res = await fetch(`${baseUrl.replace(/\/+$/, "")}${path}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
