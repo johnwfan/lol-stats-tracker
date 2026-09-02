@@ -150,6 +150,15 @@ def get_summoner_by_id(platform: str, summoner_id: str) -> dict:
     return riot_get(url)
 
 
+def get_division_league(platform: str, tier: str, division: str, page: int = 1) -> list[dict]:
+    """Sub-apex tier (e.g. tier='GOLD', division='II'). Unlike the apex
+    league entries, these already include puuid directly -- no Summoner-V4
+    fallback needed. Paginated (~205 entries/page observed); returns []
+    once past the last page."""
+    url = f"https://{platform}.api.riotgames.com/lol/league/v4/entries/RANKED_SOLO_5x5/{tier}/{division}"
+    return riot_get(url, params={"page": page})
+
+
 # --- Match-V5 (regional routing) ----------------------------------------
 
 def get_match_ids_by_puuid(platform: str, puuid: str, queue: int = 420, count: int = 100, start: int = 0) -> list[str]:

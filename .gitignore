@@ -46,6 +46,7 @@ ml/.env
 ml/.venv
 ml/__pycache__/
 ml/data/raw/
+ml/data/raw_cohort_*/
 ml/data/processed/
 ml/data/state/
 ml/artifacts/

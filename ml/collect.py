@@ -11,6 +11,13 @@ Resumable: a match already saved on disk is never re-fetched, and a seed
 puuid already queried for match IDs is skipped on subsequent runs (tracked
 in data/state/seeds_queried.json). Re-running this script just picks up
 where it left off.
+
+Day 5: collect() and its seed-discovery helpers now accept a raw_dir/
+seeds_file/target_match_count/seed source, so ml/collect_cohort.py can
+reuse this exact fetch/resume/rate-limit machinery for sub-apex tier
+cohorts, writing to a separate directory so cohorts never mix with the
+main dataset or each other. Calling collect() with no arguments (the
+`python collect.py` entry point) behaves exactly as before.
 """
 
 from __future__ import annotations
@@ -22,7 +29,7 @@ from pathlib import Path
 
 import requests
 
-from riot_client import RiotApiError, get_apex_league, get_match, get_match_ids_by_puuid, get_summoner_by_id
+from riot_client import RiotApiError, get_apex_league, get_division_league, get_match, get_match_ids_by_puuid, get_summoner_by_id
 
 # Both a Riot-level error (bad status after retries) and a network-level
 # error (connection reset after retries) should be treated the same way
@@ -54,18 +61,18 @@ SEED_LIMIT_PER_TIER = 5000
 TARGET_MATCH_COUNT = 15000
 
 
-def load_seeds_queried() -> set[str]:
-    if SEEDS_QUERIED_FILE.exists():
-        return set(json.loads(SEEDS_QUERIED_FILE.read_text()))
+def load_seeds_queried(seeds_file: Path) -> set[str]:
+    if seeds_file.exists():
+        return set(json.loads(seeds_file.read_text()))
     return set()
 
 
-def save_seeds_queried(seeds: set[str]) -> None:
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
-    SEEDS_QUERIED_FILE.write_text(json.dumps(sorted(seeds)))
+def save_seeds_queried(seeds: set[str], seeds_file: Path) -> None:
+    seeds_file.parent.mkdir(parents=True, exist_ok=True)
+    seeds_file.write_text(json.dumps(sorted(seeds)))
 
 
-def discover_seed_puuids(platform: str) -> list[str]:
+def discover_apex_seed_puuids(platform: str) -> list[str]:
     """Pull puuids from the three apex leagues. Some league entries only
     carry summonerId (older response shape) rather than puuid directly,
     so we fall back to a Summoner-V4 lookup in that case."""
@@ -91,15 +98,47 @@ def discover_seed_puuids(platform: str) -> list[str]:
     return puuids
 
 
-def collect(platform: str = PLATFORM, queue: int = QUEUE_SOLO) -> None:
-    RAW_DIR.mkdir(parents=True, exist_ok=True)
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
+def discover_division_seed_puuids(platform: str, tier: str, division: str, max_seeds: int = 5000) -> list[str]:
+    """Sub-apex tier (Day 5 cohorts): division entries already include
+    puuid directly, no Summoner-V4 fallback needed. Paginates until either
+    max_seeds is reached or Riot returns an empty page (end of division)."""
+    puuids: list[str] = []
+    page = 1
+    while len(puuids) < max_seeds:
+        entries = get_division_league(platform, tier, division, page=page)
+        if not entries:
+            log.info("division_exhausted tier=%s division=%s last_page=%d total_seeds=%d", tier, division, page, len(puuids))
+            break
+        puuids.extend(e["puuid"] for e in entries if e.get("puuid"))
+        log.info("division_page_fetched tier=%s division=%s page=%d entries=%d total_seeds=%d", tier, division, page, len(entries), len(puuids))
+        page += 1
+    return puuids[:max_seeds]
 
-    seeds_queried = load_seeds_queried()
-    already_saved = {p.stem for p in RAW_DIR.glob("*.json")}
-    log.info("startup already_saved_matches=%d already_queried_seeds=%d", len(already_saved), len(seeds_queried))
 
-    seed_puuids = discover_seed_puuids(platform)
+def collect(
+    platform: str = PLATFORM,
+    queue: int = QUEUE_SOLO,
+    raw_dir: Path = RAW_DIR,
+    seeds_file: Path = SEEDS_QUERIED_FILE,
+    target_match_count: int = TARGET_MATCH_COUNT,
+    seed_source: str = "apex",
+    division_tier: str | None = None,
+    division: str | None = None,
+) -> None:
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    seeds_file.parent.mkdir(parents=True, exist_ok=True)
+
+    seeds_queried = load_seeds_queried(seeds_file)
+    already_saved = {p.stem for p in raw_dir.glob("*.json")}
+    log.info("startup raw_dir=%s already_saved_matches=%d already_queried_seeds=%d", raw_dir, len(already_saved), len(seeds_queried))
+
+    if seed_source == "apex":
+        seed_puuids = discover_apex_seed_puuids(platform)
+    elif seed_source == "division":
+        assert division_tier and division, "division_tier and division are required when seed_source='division'"
+        seed_puuids = discover_division_seed_puuids(platform, division_tier, division)
+    else:
+        raise ValueError(f"Unknown seed_source: {seed_source}")
     log.info("matches_discovered_from seed_players=%d", len(seed_puuids))
 
     stats = {
@@ -110,8 +149,8 @@ def collect(platform: str = PLATFORM, queue: int = QUEUE_SOLO) -> None:
     }
 
     for puuid in seed_puuids:
-        if len(already_saved) >= TARGET_MATCH_COUNT:
-            log.info("target_match_count_reached target=%d", TARGET_MATCH_COUNT)
+        if len(already_saved) >= target_match_count:
+            log.info("target_match_count_reached target=%d", target_match_count)
             break
 
         if puuid in seeds_queried:
@@ -127,7 +166,7 @@ def collect(platform: str = PLATFORM, queue: int = QUEUE_SOLO) -> None:
         stats["match_ids_discovered"] += len(match_ids)
 
         for match_id in match_ids:
-            if len(already_saved) >= TARGET_MATCH_COUNT:
+            if len(already_saved) >= target_match_count:
                 break
 
             if match_id in already_saved:
@@ -141,7 +180,7 @@ def collect(platform: str = PLATFORM, queue: int = QUEUE_SOLO) -> None:
                 stats["errors"] += 1
                 continue
 
-            (RAW_DIR / f"{match_id}.json").write_text(json.dumps(match))
+            (raw_dir / f"{match_id}.json").write_text(json.dumps(match))
             already_saved.add(match_id)
             stats["fetched"] += 1
 
@@ -149,7 +188,7 @@ def collect(platform: str = PLATFORM, queue: int = QUEUE_SOLO) -> None:
                 log.info("progress fetched=%d duplicates_skipped=%d errors=%d", stats["fetched"], stats["duplicates_skipped"], stats["errors"])
 
         seeds_queried.add(puuid)
-        save_seeds_queried(seeds_queried)
+        save_seeds_queried(seeds_queried, seeds_file)
 
     log.info(
         "collection_complete match_ids_discovered=%d fetched=%d duplicates_skipped=%d errors=%d total_raw_on_disk=%d",
