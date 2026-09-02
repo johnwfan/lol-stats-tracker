@@ -1,3 +1,4 @@
+import { motion, useReducedMotion } from "framer-motion";
 import { X } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import { cn } from "@/lib/utils";
@@ -22,9 +23,15 @@ interface AlternativeCardProps {
 
 export default function AlternativeCard({ comparison, original, onRemove }: AlternativeCardProps) {
   const { champion, status } = comparison;
+  const reduceMotion = useReducedMotion();
 
   return (
-    <div className="relative rounded-xl border border-border bg-surface p-3">
+    <motion.div
+      initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
+      className="relative rounded-xl border border-border bg-surface p-3"
+    >
       <button
         type="button"
         onClick={() => onRemove(comparison.id)}
@@ -60,7 +67,7 @@ export default function AlternativeCard({ comparison, original, onRemove }: Alte
       {status === "success" && comparison.analysis && (
         <AlternativeOutcome analysis={comparison.analysis} original={original} />
       )}
-    </div>
+    </motion.div>
   );
 }
 

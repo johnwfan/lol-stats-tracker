@@ -174,8 +174,8 @@ export default function DraftPage() {
             Draft Intelligence
           </h1>
           <p className="mt-1 max-w-2xl text-sm text-text-secondary">
-            Select all ten champions to see a historical draft-strength comparison. This is an experimental research
-            tool, not a win-probability predictor.
+            Select all ten champions to see how this draft scores against a model trained on real historical ranked
+            matches. This is an experimental research tool, not a win-probability predictor.
           </p>
         </div>
 
