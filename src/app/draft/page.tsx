@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import ErrorBanner from "@/components/ui/ErrorBanner";
 import DraftSlot from "@/components/draft/DraftSlot";
 import DraftResult from "@/components/draft/DraftResult";
+import ExploreAlternatives, { type SlotOption } from "@/components/draft/ExploreAlternatives";
+import type { AlternativeComparison } from "@/components/draft/AlternativeCard";
 import { loadPickableChampions, type PickableChampion } from "@/lib/ml/championNames";
 import type { DraftAnalysis, DraftRequest } from "@/lib/ml/types";
 import { RotateCcw, Swords } from "lucide-react";
@@ -35,6 +37,11 @@ export default function DraftPage() {
   const [result, setResult] = useState<DraftAnalysis | null>(null);
   const [resultSnapshot, setResultSnapshot] = useState<Selections | null>(null);
 
+  const [exploring, setExploring] = useState(false);
+  const [exploreSlot, setExploreSlot] = useState<keyof DraftRequest | null>(null);
+  const [alternatives, setAlternatives] = useState<AlternativeComparison[]>([]);
+  const nextAlternativeId = useRef(0);
+
   useEffect(() => {
     loadPickableChampions()
       .then(setChampions)
@@ -48,8 +55,29 @@ export default function DraftPage() {
 
   const isStale = result !== null && resultSnapshot !== null && !slotsEqual(selections, resultSnapshot);
 
+  const slotOptions: SlotOption[] = useMemo(() => {
+    if (!resultSnapshot) return [];
+    return SLOTS.map((slot) => ({
+      key: slot.key,
+      side: slot.side,
+      roleLabel: slot.roleLabel,
+      champion: resultSnapshot[slot.key]!,
+    }));
+  }, [resultSnapshot]);
+
+  function clearExploration() {
+    setExploring(false);
+    setExploreSlot(null);
+    setAlternatives([]);
+  }
+
   function handleSelect(key: keyof DraftRequest, champion: PickableChampion) {
     setSelections((prev) => ({ ...prev, [key]: champion }));
+    // Editing the original draft invalidates any in-progress counterfactual exploration --
+    // alternatives were built against the old baseline and no longer apply.
+    if (exploring || exploreSlot || alternatives.length > 0) {
+      clearExploration();
+    }
   }
 
   function handleReset() {
@@ -57,6 +85,7 @@ export default function DraftPage() {
     setResult(null);
     setResultSnapshot(null);
     setAnalyzeError(null);
+    clearExploration();
   }
 
   async function handleAnalyze() {
@@ -64,9 +93,7 @@ export default function DraftPage() {
     setAnalyzing(true);
     setAnalyzeError(null);
 
-    const draft = Object.fromEntries(
-      SLOTS.map(({ key }) => [key, selections[key]!.apiName])
-    ) as unknown as DraftRequest;
+    const draft = buildDraftRequest(selections);
 
     try {
       const res = await fetch("/api/ml/analyze-draft", {
@@ -85,6 +112,55 @@ export default function DraftPage() {
     } finally {
       setAnalyzing(false);
     }
+  }
+
+  function handleToggleExplore() {
+    setExploring((prev) => !prev);
+  }
+
+  function handleSelectExploreSlot(slot: keyof DraftRequest) {
+    if (slot !== exploreSlot) {
+      // Alternatives were tested for a different role -- don't mix roles in one list.
+      setAlternatives([]);
+    }
+    setExploreSlot(slot);
+  }
+
+  async function handleTestAlternative(champion: PickableChampion) {
+    if (!exploreSlot || !resultSnapshot) return;
+    const slot = exploreSlot;
+    nextAlternativeId.current += 1;
+    const id = `alt-${nextAlternativeId.current}`;
+
+    setAlternatives((prev) => [...prev, { id, champion, status: "loading" }]);
+
+    const draft = buildDraftRequest({ ...resultSnapshot, [slot]: champion });
+
+    try {
+      const res = await fetch("/api/ml/analyze-draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(draft),
+      });
+      const body = await res.json();
+      if (!res.ok) {
+        throw new Error(body?.error || "Draft analysis is temporarily unavailable. Please try again.");
+      }
+      const analysis = body as DraftAnalysis;
+      setAlternatives((prev) => prev.map((a) => (a.id === id ? { ...a, status: "success", analysis } : a)));
+    } catch {
+      setAlternatives((prev) =>
+        prev.map((a) =>
+          a.id === id
+            ? { ...a, status: "error", errorMessage: "Draft analysis is temporarily unavailable. Please try again." }
+            : a
+        )
+      );
+    }
+  }
+
+  function handleRemoveAlternative(id: string) {
+    setAlternatives((prev) => prev.filter((a) => a.id !== id));
   }
 
   return (
@@ -155,6 +231,21 @@ export default function DraftPage() {
         {analyzeError && <ErrorBanner message={analyzeError} />}
 
         {result && <DraftResult analysis={result} stale={isStale} />}
+
+        {result && !isStale && (
+          <ExploreAlternatives
+            open={exploring}
+            onToggleOpen={handleToggleExplore}
+            slotOptions={slotOptions}
+            exploreSlot={exploreSlot}
+            onSelectSlot={handleSelectExploreSlot}
+            champions={champions}
+            alternatives={alternatives}
+            onTestAlternative={handleTestAlternative}
+            onRemoveAlternative={handleRemoveAlternative}
+            originalAnalysis={result}
+          />
+        )}
       </div>
     </main>
   );
@@ -163,4 +254,9 @@ export default function DraftPage() {
 function slotsEqual(a: Selections, b: Selections): boolean {
   const keys = Object.keys({ ...a, ...b }) as (keyof DraftRequest)[];
   return keys.every((k) => a[k]?.apiName === b[k]?.apiName);
+}
+
+/** Requires every slot in `picks` to be filled -- callers only pass complete selections. */
+function buildDraftRequest(picks: Selections): DraftRequest {
+  return Object.fromEntries(SLOTS.map(({ key }) => [key, picks[key]!.apiName])) as unknown as DraftRequest;
 }

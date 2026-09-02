@@ -16,9 +16,11 @@ interface ChampionPickerProps {
   takenApiNames: Set<string>;
   side: "blue" | "red";
   roleLabel: string;
+  /** Disables the trigger entirely, e.g. while a request using this pick is in flight. */
+  disabled?: boolean;
 }
 
-export default function ChampionPicker({ champions, value, onSelect, takenApiNames, side, roleLabel }: ChampionPickerProps) {
+export default function ChampionPicker({ champions, value, onSelect, takenApiNames, side, roleLabel, disabled }: ChampionPickerProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [coords, setCoords] = useState<{ top: number; left: number; width: number } | null>(null);
@@ -77,10 +79,12 @@ export default function ChampionPicker({ champions, value, onSelect, takenApiNam
         ref={triggerRef}
         type="button"
         onClick={toggleOpen}
+        disabled={disabled}
         aria-label={value ? `${roleLabel}: ${value.name} selected, click to change` : `Select champion for ${roleLabel}`}
         className={cn(
           "flex w-full items-center gap-2.5 rounded-xl border border-border bg-surface p-2 text-left transition",
           "hover:border-border-strong focus:outline-none focus:ring-2",
+          "disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-border",
           accentClass
         )}
       >
