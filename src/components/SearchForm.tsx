@@ -79,7 +79,7 @@ function RegionDropdown({ value, onChange }: RegionDropdownProps) {
         ref={btnRef}
         type="button"
         onClick={toggleOpen}
-        className="flex h-full w-full items-center justify-between gap-1.5 px-4 pb-3 pt-6 text-left text-[1rem] text-white outline-none"
+        className="flex h-full w-full items-center justify-between gap-1.5 px-4 pb-3 pt-6 text-left text-base text-white outline-none"
       >
         <span className="truncate">{selected?.label ?? value}</span>
         <ChevronDown className={cn("h-4 w-4 shrink-0 text-white/40 transition-transform", open && "rotate-180")} />
@@ -221,7 +221,7 @@ export default function SearchForm({ variant = "default" }: SearchFormProps) {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder={isPoster ? "e.g. Tyler1" : "Riot name"}
-                className={isPoster ? "px-4 pb-3 pt-6 text-[1rem] text-white placeholder:text-white/30" : undefined}
+                className={isPoster ? "px-4 pb-3 pt-6 text-base text-white placeholder:text-white/30" : undefined}
               />
             </div>
 
@@ -245,7 +245,7 @@ export default function SearchForm({ variant = "default" }: SearchFormProps) {
                 value={tag}
                 onChange={(e) => setTag(e.target.value)}
                 placeholder={isPoster ? "e.g. NA1" : "Tag"}
-                className={isPoster ? "px-4 pb-3 pt-6 text-[1rem] text-white placeholder:text-white/30" : undefined}
+                className={isPoster ? "px-4 pb-3 pt-6 text-base text-white placeholder:text-white/30" : undefined}
               />
             </div>
 

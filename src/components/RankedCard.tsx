@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, type Variants } from "framer-motion";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { Trophy, Flame } from "lucide-react";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
@@ -44,6 +44,7 @@ interface RankedCardProps {
 }
 
 export default function RankedCard({ ranked }: RankedCardProps) {
+  const reduceMotion = useReducedMotion();
   const hasEntries = ranked.entries && ranked.entries.length > 0 && ranked.rankedStatus !== "UNRANKED";
 
   return (
@@ -63,7 +64,7 @@ export default function RankedCard({ ranked }: RankedCardProps) {
       ) : (
         <motion.div
           variants={listVariants}
-          initial="hidden"
+          initial={reduceMotion ? "show" : "hidden"}
           animate="show"
           className="mt-4 grid gap-3 xl:grid-cols-2"
         >

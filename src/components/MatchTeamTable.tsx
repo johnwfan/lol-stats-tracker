@@ -38,7 +38,52 @@ export default function MatchTeamTable({ teamId, participants, ddVersion }: Matc
         <span className="font-mono text-sm font-semibold text-text-secondary">{teamKills} kills</span>
       </div>
 
-      <div className="overflow-x-auto">
+      {/* Below `sm`, the 7-column grid has no room to breathe -- stack each player as a card instead. */}
+      <div className="sm:hidden divide-y divide-border">
+        {participants.map((p) => (
+          <div key={p.puuid} className="px-4 py-3">
+            <div className="flex items-center gap-2.5">
+              <img
+                src={championIconUrl(p.championName) ?? undefined}
+                alt={p.championName}
+                className="h-10 w-10 shrink-0 rounded-lg border border-border object-cover"
+                loading="lazy"
+              />
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-sm font-medium text-text-primary">{p.summonerName}</div>
+                <div className="truncate text-xs text-text-muted">{p.championName}</div>
+              </div>
+              <div className="shrink-0 text-right font-mono text-sm text-text-secondary">
+                {p.kills}<span className="text-text-muted">/</span>
+                <span className="text-loss">{p.deaths}</span><span className="text-text-muted">/</span>
+                {p.assists}
+              </div>
+            </div>
+
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] text-text-muted">
+              <span>{sumCS(p)} CS</span>
+              <span>{((p.goldEarned || 0) / 1000).toFixed(1)}k gold</span>
+              <span>{((p.totalDamageDealtToChampions || 0) / 1000).toFixed(1)}k dmg</span>
+              <span>{p.visionScore ?? 0} vision</span>
+            </div>
+
+            <div className="mt-2 flex gap-1">
+              {[p.item0, p.item1, p.item2, p.item3, p.item4, p.item5, p.item6].map((id, i) => (
+                <img
+                  key={i}
+                  src={itemIconUrl(id, ddVersion) ?? undefined}
+                  alt=""
+                  className={cn("h-6 w-6 rounded", !id && "bg-surface")}
+                  loading="lazy"
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* `sm` and up: the full comparative grid, with real headers. */}
+      <div className="hidden overflow-x-auto sm:block">
         <div className={cn("grid min-w-[640px] gap-2 border-b border-border px-4 py-2 text-[11px] uppercase tracking-wide text-text-muted", COLS)}>
           <span>Player</span>
           <span>KDA</span>

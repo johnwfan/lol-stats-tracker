@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, type Variants } from "framer-motion";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import SearchForm from "@/components/SearchForm";
 import SearchChips from "@/components/SearchChips";
 import { championSplashUrl } from "@/lib/ddragon";
@@ -18,6 +18,7 @@ const itemVariants: Variants = {
 
 export default function HeroPoster() {
   const splash = championSplashUrl(demoCollageChampion);
+  const reduceMotion = useReducedMotion();
 
   return (
     <section className="relative overflow-hidden">
@@ -48,7 +49,7 @@ export default function HeroPoster() {
       <div className="relative z-10 mx-auto w-full max-w-[1280px] px-4 md:px-6">
         <motion.div
           variants={containerVariants}
-          initial="hidden"
+          initial={reduceMotion ? "show" : "hidden"}
           animate="show"
           className="flex flex-col items-center py-16 text-center lg:min-h-[600px] lg:justify-center lg:py-20"
         >
@@ -67,7 +68,7 @@ export default function HeroPoster() {
               SCUTTLE.GG
             </motion.h1>
 
-            <motion.p variants={itemVariants} className="mx-auto mt-6 max-w-md text-[1rem] text-hp-muted lg:text-lg">
+            <motion.p variants={itemVariants} className="mx-auto mt-6 max-w-md text-base text-hp-muted lg:text-lg">
               Search any Riot ID and get ranked, mastery, and match history.
             </motion.p>
 

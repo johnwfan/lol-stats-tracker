@@ -1,4 +1,5 @@
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 const VARIANTS = {
@@ -38,9 +39,9 @@ export default function Button({ children, variant = "primary", size = "md", cla
 
   if (href) {
     return (
-      <a href={href} className={classes} {...(rest as AnchorHTMLAttributes<HTMLAnchorElement>)}>
+      <Link href={href} className={classes} {...(rest as AnchorHTMLAttributes<HTMLAnchorElement>)}>
         {children}
-      </a>
+      </Link>
     );
   }
 

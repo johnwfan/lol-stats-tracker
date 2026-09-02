@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { championIconUrl, itemIconUrl } from "@/lib/ddragon";
 import { cn, formatRelativeTime, formatDuration } from "@/lib/utils";
 import { queueName } from "@/lib/queues";
@@ -20,7 +21,7 @@ export default function MatchListItem({ match: m, ddVersion }: MatchListItemProp
   const killParticipation = m.teamKills ? Math.round(((m.kills + m.assists) / m.teamKills) * 100) : null;
 
   return (
-    <a
+    <Link
       href={`/match/${m.platform}/${m.matchId}`}
       className={cn(
         "block rounded-xl border-l-4 bg-card/40 px-4 py-3 transition hover:bg-overlay-hover",
@@ -107,6 +108,6 @@ export default function MatchListItem({ match: m, ddVersion }: MatchListItemProp
           {killParticipation != null ? <span>{killParticipation}% KP</span> : null}
         </div>
       </div>
-    </a>
+    </Link>
   );
 }

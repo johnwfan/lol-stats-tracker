@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
 import MatchTeamTable from "@/components/MatchTeamTable";
+import MatchSkeleton from "@/components/MatchSkeleton";
 import ErrorBanner from "@/components/ui/ErrorBanner";
 import { getLatestDdragonVersion } from "@/lib/ddragon";
 import { queueName } from "@/lib/queues";
@@ -82,36 +83,38 @@ export default function MatchPage() {
       <Navbar backHref="/" backLabel="Back" />
 
       <div className="mx-auto max-w-5xl px-4 py-8 space-y-6">
-        <div>
-          <div className="text-xs font-medium uppercase tracking-wide text-text-muted">
-            {info ? queueName(info.queueId) : "Match"}
-            {info ? ` · ${formatDuration(info.gameDuration)}` : ""}
-          </div>
-          {info && teams.length === 2 ? (
-            <div className="mt-1 flex items-baseline gap-2 font-display text-2xl font-bold md:text-3xl">
-              <span className={blueWon ? "text-win" : "text-loss"}>Blue {blueKills}</span>
-              <span className="text-text-muted">—</span>
-              <span className={blueWon ? "text-loss" : "text-win"}>{redKills} Red</span>
-            </div>
-          ) : (
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-text-primary md:text-3xl">
-              Match <span className="text-text-muted">{matchId || "(loading...)"}</span>
-            </h1>
-          )}
-        </div>
-
         {!platform || !matchId ? (
           <div className="text-text-secondary">Bad URL. Expected /match/&lt;platform&gt;/&lt;matchId&gt;.</div>
         ) : loading ? (
-          <div className="text-text-secondary">Loading match…</div>
+          <MatchSkeleton />
         ) : error ? (
           <ErrorBanner message={error} />
         ) : (
-          <div className="grid gap-6">
-            {teams.map(([teamId, arr]) => (
-              <MatchTeamTable key={teamId} teamId={teamId} participants={arr} ddVersion={ddVersion} />
-            ))}
-          </div>
+          <>
+            <div>
+              <div className="text-xs font-medium uppercase tracking-wide text-text-muted">
+                {info ? queueName(info.queueId) : "Match"}
+                {info ? ` · ${formatDuration(info.gameDuration)}` : ""}
+              </div>
+              {info && teams.length === 2 ? (
+                <div className="mt-1 flex items-baseline gap-2 font-display text-2xl font-bold md:text-3xl">
+                  <span className={blueWon ? "text-win" : "text-loss"}>Blue {blueKills}</span>
+                  <span className="text-text-muted">—</span>
+                  <span className={blueWon ? "text-loss" : "text-win"}>{redKills} Red</span>
+                </div>
+              ) : (
+                <h1 className="mt-1 text-2xl font-semibold tracking-tight text-text-primary md:text-3xl">
+                  Match <span className="text-text-muted">{matchId}</span>
+                </h1>
+              )}
+            </div>
+
+            <div className="grid gap-6">
+              {teams.map(([teamId, arr]) => (
+                <MatchTeamTable key={teamId} teamId={teamId} participants={arr} ddVersion={ddVersion} />
+              ))}
+            </div>
+          </>
         )}
       </div>
     </main>

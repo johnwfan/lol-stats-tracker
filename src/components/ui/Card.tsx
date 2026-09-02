@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { motion, type HTMLMotionProps } from "framer-motion";
+import { motion, useReducedMotion, type HTMLMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface CardProps extends Omit<HTMLMotionProps<"div">, "children"> {
@@ -11,9 +11,11 @@ interface CardProps extends Omit<HTMLMotionProps<"div">, "children"> {
 }
 
 export default function Card({ children, className, hover = true, ...rest }: CardProps) {
+  const reduceMotion = useReducedMotion();
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 6 }}
+      initial={reduceMotion ? false : { opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
       className={cn(

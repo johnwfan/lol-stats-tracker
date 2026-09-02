@@ -167,7 +167,7 @@ function DraftIntelTeaser() {
           <h3 className="mt-2 text-3xl font-bold text-white lg:text-4xl">
             how strong is this draft, historically?
           </h3>
-          <p className="mt-3 text-sm text-white/60 lg:text-[1rem]">
+          <p className="mt-3 text-sm text-white/60 lg:text-base">
             Build a 10-champion draft and see how it compares to a model trained on real ranked matches
             &mdash; a historical read on the pick, not a win predictor.
           </p>
@@ -203,7 +203,7 @@ export default function ProductShowcase() {
           <br />
           SEE EVERYTHING.
         </h2>
-        <p className="max-w-xs text-sm text-hp-muted lg:text-[1rem]">
+        <p className="max-w-xs text-sm text-hp-muted lg:text-base">
           scuttle.gg turns Riot&apos;s raw match data into something you can actually read.
         </p>
       </div>

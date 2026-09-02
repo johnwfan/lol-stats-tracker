@@ -24,8 +24,6 @@ const ACCENT_SWATCHES: AccentSwatch[] = [
   { label: "Emerald — coming soon", color: "#22c55e", active: false },
 ];
 
-const INTENSITY_OPTIONS = ["Low", "Normal", "High"] as const;
-
 function getDefaultRegion(): string {
   if (typeof window === "undefined") return "na1";
   try {
@@ -38,7 +36,6 @@ function getDefaultRegion(): string {
 export default function SettingsPage() {
   const { data: session, status } = useSession();
   const [defaultRegion, setDefaultRegion] = useState(getDefaultRegion);
-  const [intensity, setIntensity] = useState<(typeof INTENSITY_OPTIONS)[number]>("Normal");
 
   function handleRegionChange(value: string) {
     setDefaultRegion(value);
@@ -140,28 +137,6 @@ export default function SettingsPage() {
               ))}
             </div>
             <p className="mt-2 text-xs text-text-muted">More themes coming soon.</p>
-          </div>
-
-          <div>
-            <div className="text-sm font-medium text-text-primary">Background intensity</div>
-            <div className="mt-3 inline-flex rounded-full border border-border bg-surface p-1">
-              {INTENSITY_OPTIONS.map((opt) => (
-                <button
-                  key={opt}
-                  type="button"
-                  onClick={() => setIntensity(opt)}
-                  className={cn(
-                    "rounded-full px-3 py-1.5 text-xs font-medium transition",
-                    intensity === opt
-                      ? "bg-accent text-[color:var(--color-base)]"
-                      : "text-text-secondary hover:text-text-primary"
-                  )}
-                >
-                  {opt}
-                </button>
-              ))}
-            </div>
-            <p className="mt-2 text-xs text-text-muted">Preview only for now — full theming is on the way.</p>
           </div>
         </Card>
       </div>

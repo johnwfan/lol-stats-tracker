@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, type Variants } from "framer-motion";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import Card from "@/components/ui/Card";
 import MatchListItem from "@/components/MatchListItem";
 import type { MatchSummary } from "@/types/domain";
@@ -21,6 +21,8 @@ interface MatchListProps {
 }
 
 export default function MatchList({ matches, ddVersion }: MatchListProps) {
+  const reduceMotion = useReducedMotion();
+
   return (
     <Card className="p-4 md:p-5">
       <div className="flex items-center justify-between">
@@ -28,7 +30,12 @@ export default function MatchList({ matches, ddVersion }: MatchListProps) {
         <div className="text-xs text-text-muted">Last {matches.length}</div>
       </div>
 
-      <motion.div variants={listVariants} initial="hidden" animate="show" className="mt-4 space-y-2">
+      <motion.div
+        variants={listVariants}
+        initial={reduceMotion ? "show" : "hidden"}
+        animate="show"
+        className="mt-4 space-y-2"
+      >
         {matches.map((m) => (
           <motion.div key={m.matchId} variants={itemVariants}>
             <MatchListItem match={m} ddVersion={ddVersion} />
