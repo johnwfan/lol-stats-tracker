@@ -100,16 +100,10 @@ function AlternativeOutcome({ analysis, original }: { analysis: DraftAnalysis; o
 
       <div className="text-[11px] text-text-muted">Confidence: {confidenceCopy.label}</div>
 
-      {analysis.confidence === "very_low" && (
+      {(analysis.confidence === "very_low" || analysis.warnings.length > 0) && (
         <div className="flex items-start gap-1.5 rounded-lg border border-coral/30 bg-coral-soft px-2 py-1.5 text-[11px] text-coral">
           <Badge tone="coral" className="shrink-0 px-2 py-0.5 text-[10px]">Note</Badge>
-          <span>Very Low confidence &mdash; limited historical support for this champion in this role.</span>
-        </div>
-      )}
-      {analysis.confidence !== "very_low" && analysis.warnings.length > 0 && (
-        <div className="flex items-start gap-1.5 rounded-lg border border-coral/30 bg-coral-soft px-2 py-1.5 text-[11px] text-coral">
-          <Badge tone="coral" className="shrink-0 px-2 py-0.5 text-[10px]">Note</Badge>
-          <span>Limited historical data for this champion-role combination &mdash; treat this result with extra caution.</span>
+          <span>Limited historical data for this pick &mdash; treat with extra caution.</span>
         </div>
       )}
     </div>

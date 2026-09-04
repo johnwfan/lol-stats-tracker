@@ -2,7 +2,7 @@ import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import DraftStrengthScale from "@/components/draft/DraftStrengthScale";
 import { cn } from "@/lib/utils";
-import { ADVANTAGE_COPY, CONFIDENCE_COPY, ordinal } from "@/lib/ml/draftCopy";
+import { ADVANTAGE_COPY, CONFIDENCE_COPY, MODEL_INFO_COPY, ordinal } from "@/lib/ml/draftCopy";
 import type { DraftAnalysis } from "@/lib/ml/types";
 
 interface DraftResultProps {
@@ -47,16 +47,14 @@ export default function DraftResult({ analysis, stale }: DraftResultProps) {
       {analysis.warnings.length > 0 && (
         <div className="mt-4 flex items-start gap-2 rounded-lg border border-coral/30 bg-coral-soft px-3 py-2 text-xs text-coral">
           <Badge tone="coral" className="shrink-0">Note</Badge>
-          <span>Limited historical data for one or more champion-role combinations in this draft — treat this result with extra caution.</span>
+          <span>One or more picks in this draft have limited historical data — treat this result with extra caution.</span>
         </div>
       )}
 
       <div className="mt-5 border-t border-border pt-4 text-xs text-text-muted">
         <p>
-          <span className="font-semibold text-text-secondary">Reference population: </span>
-          {analysis.reference_population}
+          {MODEL_INFO_COPY.trainingData} {MODEL_INFO_COPY.disclaimer}
         </p>
-        <p className="mt-1.5">{analysis.disclaimer}</p>
         <p className="mt-1.5 text-[11px] text-text-muted/80">Model version: {analysis.model_version}</p>
       </div>
 

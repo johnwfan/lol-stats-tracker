@@ -80,9 +80,7 @@ export default function ExploreAlternatives({
         <div>
           <h3 className="text-sm font-bold uppercase tracking-wide text-text-muted">Explore Alternatives</h3>
           <p className="mt-1 max-w-prose text-xs text-text-secondary">
-            Alternative scores show how the model&apos;s historical assessment changes when one pick is replaced
-            while the other nine picks stay fixed. These are model-score comparisons, not guaranteed changes in
-            win probability.
+            See how the model&apos;s score changes if you swap one pick, holding the other nine fixed.
           </p>
         </div>
         <Button variant="ghost" size="sm" onClick={onToggleOpen} aria-label="Close Explore Alternatives">
